@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Shevy-Z 的个人主页">
+<title>Shevy-Z</title>
+<style>
+  :root {
+    --bg: #fafafa;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --accent-soft: #dbeafe;
+    --border: #e5e7eb;
+    --radius: 16px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1117;
+      --card: #1a1d27;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #60a5fa;
+      --accent-soft: #1e3a5f;
+      --border: #2a2e3a;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 96px 24px 72px;
+    background: linear-gradient(180deg, var(--accent-soft) 0%, var(--bg) 100%);
+  }
+  .avatar {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #7c3aed);
+    color: #fff;
+    font-size: 40px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(37, 99, 235, .25);
+  }
+  .hero h1 { font-size: 40px; font-weight: 800; letter-spacing: -.02em; }
+  .hero p { color: var(--muted); font-size: 18px; margin-top: 12px; }
+  .badges { margin-top: 24px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .badge {
+    padding: 6px 14px; border-radius: 999px;
+    background: var(--card); border: 1px solid var(--border);
+    font-size: 13px; color: var(--muted);
+  }
+
+  /* Sections */
+  section { padding: 56px 0; border-top: 1px solid var(--border); }
+  h2 { font-size: 22px; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+  h2::before { content: ""; width: 4px; height: 22px; border-radius: 2px; background: var(--accent); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,.08); }
+  .card h3 { font-size: 17px; margin-bottom: 8px; }
+  .card p { color: var(--muted); font-size: 14px; }
+  .card .tag {
+    display: inline-block; margin-top: 12px;
+    font-size: 12px; color: var(--accent);
+    background: var(--accent-soft);
+    padding: 3px 10px; border-radius: 999px;
+  }
+
+  .about-text { font-size: 16px; color: var(--muted); max-width: 640px; }
+  .about-text b { color: var(--text); }
+
+  ul.links { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  ul.links a {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 20px;
+    text-decoration: none; color: var(--text); font-weight: 600;
+    transition: border-color .2s ease, transform .2s ease;
+  }
+  ul.links a:hover { border-color: var(--accent); transform: translateY(-2px); }
+  ul.links a span.arrow { margin-left: auto; color: var(--accent); }
+
+  footer {
+    text-align: center; padding: 40px 24px;
+    color: var(--muted); font-size: 14px; border-top: 1px solid var(--border);
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  .hero > * { animation: fadeUp .6s ease both; }
+  .hero > *:nth-child(2) { animation-delay: .1s; }
+  .hero > *:nth-child(3) { animation-delay: .2s; }
+  .hero > *:nth-child(4) { animation-delay: .3s; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="avatar">S</div>
+  <h1>Shevy-Z</h1>
+  <p>你好,欢迎来到我的主页 👋</p>
+  <div class="badges">
+    <span class="badge">🌏 中国</span>
+    <span class="badge">💻 开发者</span>
+    <span class="badge">✨ 创造者</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <section id="about">
+    <h2>关于我</h2>
+    <p class="about-text">
+      你好,我是 <b>Shevy-Z</b>。这是我的 GitHub Pages 个人主页。
+      我喜欢把想法变成真实可用的作品,并在这里记录与分享。
+      <br><br>
+      这个页面目前是初始模板 —— 你可以随时告诉我,把它换成任何你想要的样子。
+    </p>
+  </section>
+
+  <section id="projects">
+    <h2>项目</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>kox</h3>
+        <p>我的 GitHub 仓库之一,欢迎前去围观。</p>
+        <span class="tag">GitHub 仓库</span>
+      </div>
+      <div class="card">
+        <h3>这个主页</h3>
+        <p>由 TRAE 帮助创建并自动发布到 GitHub Pages。</p>
+        <span class="tag">GitHub Pages</span>
+      </div>
+      <div class="card">
+        <h3>更多项目</h3>
+        <p>敬请期待,这里将会展示我的更多作品。</p>
+        <span class="tag">Coming Soon</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="links">
+    <h2>联系方式</h2>
+    <ul class="links">
+      <li><a href="https://github.com/Shevy-Z" target="_blank" rel="noopener">
+        GitHub<span class="arrow">→</span></a></li>
+      <li><a href="https://github.com/Shevy-Z?tab=repositories" target="_blank" rel="noopener">
+        我的仓库<span class="arrow">→</span></a></li>
+    </ul>
+  </section>
+
+</div>
+
+<footer>
+  © 2026 Shevy-Z · Powered by <a href="https://pages.github.com" target="_blank" rel="noopener">GitHub Pages</a>
+</footer>
+
+</body>
+</html>
