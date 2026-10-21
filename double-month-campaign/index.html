@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="东风日产 10/11 双月活动运营后台原型" />
+  <title>10/11 双月活动 · 运营工作台</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">N</div>
+        <div class="brand-copy">
+          <strong>活动中台</strong>
+          <span>Campaign Studio</span>
+        </div>
+      </div>
+
+      <div class="campaign-chip">
+        <span class="status-dot"></span>
+        <div><small>当前活动</small><strong>2026 双月活动</strong></div>
+      </div>
+
+      <nav class="main-nav" aria-label="主菜单">
+        <button class="nav-item active" data-page="campaign">
+          <span class="nav-icon">◫</span>
+          <span>10/11 双月活动页</span>
+        </button>
+        <button class="nav-item" data-page="records">
+          <span class="nav-icon">≡</span>
+          <span>活动领券记录表</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="avatar">SC</div>
+        <div><strong>市场运营</strong><span>总部活动管理员</span></div>
+        <button aria-label="更多">···</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <div class="breadcrumb"><span>活动管理</span><b>/</b><strong id="breadcrumbTitle">10/11 双月活动页</strong></div>
+          <h1 id="pageTitle">10/11 双月活动</h1>
+        </div>
+        <div class="top-actions" id="topActions">
+          <button class="ghost-button" id="interactionButton"><span>⌘</span> 页面交互</button>
+          <button class="primary-button" id="documentButton"><span>▤</span> 产品说明文档</button>
+        </div>
+      </header>
+
+      <section id="campaignPage" class="page active-page">
+        <div class="page-meta">
+          <div class="meta-left"><span class="live-tag"><i></i> 活动进行中</span><span>活动 ID：2026-11-SYHD</span><span>活动周期：2026.10.01 — 2026.11.30</span></div>
+          <button class="text-button" id="previewInteraction">查看完整交互说明 <span>→</span></button>
+        </div>
+
+        <div class="campaign-workspace">
+          <section class="event-preview">
+            <div class="phone-toolbar">
+              <div><span class="device-dot"></span><strong>活动页预览</strong></div>
+              <div class="viewport-switch"><button class="active">移动端</button><button>375 × 812</button></div>
+            </div>
+            <div class="phone-stage">
+              <div class="phone-frame">
+                <div class="phone-status"><span>9:41</span><span>● ● ▰</span></div>
+                <div class="mobile-page">
+                  <div class="mobile-hero">
+                    <div class="mobile-brand">NISSAN</div>
+                    <p>智享服务 · 悦享出行</p>
+                    <h2><em>10/11</em> 双月焕新季</h2>
+                    <div class="hero-subtitle">安心养车福利限时放送</div>
+                    <div class="road-line"></div>
+                    <div class="car-silhouette">NISSAN</div>
+                  </div>
+                  <div class="benefit-section">
+                    <div class="section-title"><span></span><strong>双月专属礼遇</strong><span></span></div>
+                    <button class="coupon-card" id="couponEntry">
+                      <div class="coupon-value"><b>4</b><span>折</span><small>上门取送车券</small></div>
+                      <div class="coupon-rule">上门取送服务<br><strong>限时优惠</strong></div>
+                      <div class="coupon-action">立即领取</div>
+                    </button>
+                    <div class="service-grid">
+                      <button class="service-card pickup" id="pickupEntry"><span class="service-illustration">⌁</span><small>省心服务</small><strong>预约上门取送车</strong><em>立即预约 →</em></button>
+                      <button class="service-card maintenance" id="maintenanceEntry"><span class="service-illustration">◇</span><small>专业养护</small><strong>预约维保</strong><em>立即预约 →</em></button>
+                    </div>
+                    <p class="fine-print">* 优惠券具体使用规则以卡券中心说明为准</p>
+                  </div>
+                </div>
+                <div class="phone-home"></div>
+              </div>
+            </div>
+          </section>
+
+          <aside class="config-panel">
+            <div class="panel-heading"><div><span>页面配置</span><h3>双月活动落地页</h3></div><span class="saved-indicator">✓ 已保存</span></div>
+            <div class="config-list">
+              <div class="config-group"><label>活动名称</label><div class="input-like">10/11 双月焕新季</div></div>
+              <div class="config-group"><label>活动 ID</label><div class="input-like disabled">2026-11-SYHD <span>固定</span></div></div>
+              <div class="config-group"><label>投放渠道</label><div class="tag-list"><span>总部客服外呼</span><span>APP 投放</span><span>短信</span><span>小程序</span></div></div>
+              <div class="config-group"><label>页面模块</label>
+                <div class="module-row"><span class="drag">⠿</span><span class="module-icon orange">券</span><div><strong>上门取送车 4 折券</strong><small>跳转独立领券活动页</small></div><i>开启</i></div>
+                <div class="module-row"><span class="drag">⠿</span><span class="module-icon blue">取</span><div><strong>预约上门取送车</strong><small>根据访问环境执行跳转</small></div><i>开启</i></div>
+                <div class="module-row"><span class="drag">⠿</span><span class="module-icon green">保</span><div><strong>预约维保</strong><small>APP / 小程序原生页面</small></div><i>开启</i></div>
+              </div>
+            </div>
+            <div class="config-footer"><span>最后更新于今天 15:26</span><button id="publishDemo">保存并发布</button></div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="recordsPage" class="page">
+        <div class="record-toolbar">
+          <div><h2>活动数据概览</h2><p>数据每 10 分钟更新 · 最近更新：今天 15:30</p></div>
+          <div class="toolbar-actions"><button class="outline-button">◷ 2026.10.01 — 11.30</button><button class="outline-button" id="exportButton">⇩ 导出数据</button></div>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card featured"><div class="stat-label"><span>页面浏览数</span><b>PV</b></div><strong>24,862</strong><div class="trend"><i>↑ 18.6%</i><span>较上一周期</span></div></article>
+          <article class="stat-card"><div class="stat-label"><span>页面浏览人数</span><b>UV</b></div><strong>18,420</strong><div class="trend"><i>↑ 12.4%</i><span>较上一周期</span></div></article>
+          <article class="stat-card"><div class="stat-label"><span>活动引流领券数</span><b>券</b></div><strong>6,284</strong><div class="trend"><i>25.3%</i><span>浏览转化率</span></div></article>
+          <article class="stat-card"><div class="stat-label"><span>取送车提交预约数</span><b>取</b></div><strong>1,926</strong><div class="trend"><i>30.7%</i><span>领券转化率</span></div></article>
+          <article class="stat-card"><div class="stat-label"><span>维保预约数</span><b>保</b></div><strong>2,315</strong><div class="trend"><i>↑ 8.2%</i><span>较上一周期</span></div></article>
+        </div>
+
+        <div class="channel-panel">
+          <div class="section-heading"><div><h3>页面浏览数 · 渠道分布</h3><p>各投放渠道带来的页面访问量</p></div><span>总计 24,862 次</span></div>
+          <div class="channel-bars">
+            <div class="channel-item"><div><span><i class="channel-color c1"></i>总部客服外呼</span><strong>8,704 <small>35%</small></strong></div><div class="bar"><i style="width:35%"></i></div></div>
+            <div class="channel-item"><div><span><i class="channel-color c2"></i>APP 投放</span><strong>7,956 <small>32%</small></strong></div><div class="bar"><i style="width:32%"></i></div></div>
+            <div class="channel-item"><div><span><i class="channel-color c3"></i>短信</span><strong>5,221 <small>21%</small></strong></div><div class="bar"><i style="width:21%"></i></div></div>
+            <div class="channel-item"><div><span><i class="channel-color c4"></i>小程序</span><strong>2,981 <small>12%</small></strong></div><div class="bar"><i style="width:12%"></i></div></div>
+          </div>
+        </div>
+
+        <div class="records-panel">
+          <div class="section-heading records-heading"><div><h3>领券明细</h3><p>共 6,284 条活动领券记录</p></div><div class="record-filters"><button class="filter-button">全部状态⌄</button><label class="search-box">⌕<input id="recordSearch" placeholder="搜索 oneID / 卡券 ID" /></label></div></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>活动 ID</th><th>oneID</th><th>卡券 ID</th><th>参与活动时间</th><th>领取卡券时间</th><th>核销时间</th><th>状态</th></tr></thead>
+              <tbody id="recordTableBody"></tbody>
+            </table>
+          </div>
+          <div class="pagination"><span>共 6,284 条</span><div><button disabled>‹</button><button class="active">1</button><button>2</button><button>3</button><span>···</span><button>629</button><button>›</button></div></div>
+        </div>
+      </section>
+
+      <section id="interactionPage" class="page">
+        <div class="interaction-intro"><button class="back-link" id="backToCampaign">← 返回活动页</button><div><span class="eyebrow">INTERACTION SPEC</span><h2>页面交互说明</h2><p>选择访问环境并点击下方交互节点，右侧将呈现用户实际看到的页面或提示。</p></div></div>
+        <div class="interaction-layout">
+          <section class="flow-panel">
+            <div class="environment-picker"><span>模拟访问环境</span><div><button data-env="app" class="active">东风日产 APP</button><button data-env="mini">微信小程序</button><button data-env="web">其他环境</button></div></div>
+            <div class="flow-title"><span>活动页面</span><i></i><span>目标页面</span></div>
+            <div class="flow-list">
+              <button class="flow-card active" data-flow="coupon"><span class="flow-index orange">01</span><div><strong>领取上门取送车 4 折券</strong><p>跳转至独立领券活动页，领取后进入卡券中心</p></div><em>→</em></button>
+              <button class="flow-card" data-flow="pickup"><span class="flow-index blue">02</span><div><strong>预约上门取送车</strong><p id="pickupFlowDesc">APP 内跳转上门取送车预约页面</p></div><em>→</em></button>
+              <button class="flow-card" data-flow="maintenance"><span class="flow-index green">03</span><div><strong>预约维保</strong><p id="maintenanceFlowDesc">APP 内跳转预约维保页面</p></div><em>→</em></button>
+            </div>
+            <div class="logic-note"><span>i</span><p><strong>环境判断规则</strong>页面载入时通过 UA 与 JS Bridge 判断访问环境；按钮点击埋点成功后，再执行原生路由或展示引导弹窗。</p></div>
+          </section>
+          <section class="result-panel">
+            <div class="result-header"><div><span class="status-dot"></span><strong id="resultTitle">4 折券独立领券页</strong></div><span id="resultEnv">东风日产 APP</span></div>
+            <div class="result-stage">
+              <div class="result-phone">
+                <div class="phone-status dark"><span>9:41</span><span>● ● ▰</span></div>
+                <div id="resultContent" class="result-content"></div>
+                <div class="phone-home dark-home"></div>
+              </div>
+            </div>
+            <div class="result-caption" id="resultCaption"><span>跳转方式</span><strong>H5 路由 · /coupon/pickup-40off</strong></div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <aside class="document-drawer" id="documentDrawer" aria-hidden="true">
+    <div class="drawer-header"><div><span>PRODUCT SPEC</span><h2>10/11 双月活动产品说明</h2></div><button id="closeDrawer" aria-label="关闭">×</button></div>
+    <div class="drawer-body">
+      <div class="doc-meta"><span>版本 V1.0</span><span>最后更新 2026.09.18</span><span class="reviewed">✓ 已评审</span></div>
+      <nav class="doc-toc"><a href="#doc-bg">项目背景</a><a href="#doc-goal">产品目标</a><a href="#doc-rule">活动规则</a><a href="#doc-data">数据口径</a><a href="#doc-event">埋点说明</a></nav>
+      <article class="doc-content">
+        <section id="doc-bg"><h3><span>01</span> 项目背景</h3><p>面向东风日产车主开展 10/11 双月售后服务活动，通过多渠道触达，为用户提供上门取送车与预约维保服务，提升售后预约转化。</p></section>
+        <section id="doc-goal"><h3><span>02</span> 产品目标</h3><div class="goal-grid"><div><strong>提升触达</strong><p>统一承接外呼、APP、短信与小程序流量</p></div><div><strong>促进转化</strong><p>以 4 折服务券降低预约决策门槛</p></div><div><strong>完整归因</strong><p>贯通访问、领券、预约、核销数据</p></div></div></section>
+        <section id="doc-rule"><h3><span>03</span> 活动规则</h3><ol><li><b>活动时间</b><p>2026 年 10 月 1 日 00:00 至 11 月 30 日 23:59。</p></li><li><b>参与用户</b><p>已完成 oneID 登录且绑定东风日产车辆的用户。</p></li><li><b>优惠内容</b><p>每位用户限领 1 张上门取送车 4 折券，券的有效期与适用门店以卡券中心为准。</p></li><li><b>预约入口</b><p>APP 内调用原生预约页，小程序内进入小程序预约页，其他环境引导下载或打开 APP。</p></li></ol></section>
+        <section id="doc-data"><h3><span>04</span> 数据口径</h3><table class="doc-table"><tr><th>指标</th><th>统计口径</th></tr><tr><td>页面浏览数</td><td>活动页面曝光事件总次数（PV），按 source_channel 区分渠道</td></tr><tr><td>页面浏览人数</td><td>活动页面曝光事件按 oneID 去重（UV）</td></tr><tr><td>活动引流领券数</td><td>由本活动进入独立领券页并领取成功的卡券数</td></tr><tr><td>取送车提交预约数</td><td>来源为本活动且提交成功的上门取送车订单数</td></tr><tr><td>维保预约数</td><td>来源为本活动且提交成功的维保预约单数</td></tr></table></section>
+        <section id="doc-event"><h3><span>05</span> 核心埋点</h3><div class="event-code"><code>syhd_page_view</code><span>活动页浏览</span></div><div class="event-code"><code>syhd_coupon_click</code><span>4 折券入口点击</span></div><div class="event-code"><code>syhd_pickup_submit</code><span>取送车预约提交</span></div><div class="event-code"><code>syhd_maintenance_submit</code><span>维保预约提交</span></div></section>
+      </article>
+    </div>
+  </aside>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="route-modal" id="routeModal"><button class="modal-close" id="modalClose">×</button><div id="modalBody"></div></div>
+  </div>
+  <div class="toast" id="toast"><span>✓</span><p><strong>发布成功</strong><small>活动配置已同步至线上环境</small></p></div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
