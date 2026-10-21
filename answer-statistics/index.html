@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="overrides.css" />
   </head>
   <body>
     <div class="app-shell">
@@ -79,17 +80,29 @@
           </section>
 
           <section class="metrics" aria-label="关键指标">
-            <article class="metric-card accent-blue">
-              <div class="metric-icon">▦</div><span>答卷总量</span><strong data-count="190000">190,000</strong><small><em>↑ 12.8%</em> 较上周期</small>
+            <article class="metric-card precise accent-blue">
+              <strong>1900000000</strong><span>全品牌答题总量（n）</span>
             </article>
-            <article class="metric-card accent-violet">
-              <div class="metric-icon">◷</div><span>平均答题时长</span><strong>8.51<small>分钟</small></strong><small>中位数 6.82 分钟</small>
+            <article class="metric-card precise accent-violet">
+              <strong>29.00<em>秒</em></strong><span>全品牌平均答题时长（μ）</span>
             </article>
-            <article class="metric-card accent-green">
-              <div class="metric-icon">✓</div><span>有效答卷率</span><strong>94.7<small>%</small></strong><small><em>↑ 2.1%</em> 质量提升</small>
+            <article class="metric-card precise accent-green">
+              <strong>9.0<em>秒</em></strong><span>全品牌答题标准差（σ）</span>
             </article>
-            <article class="metric-card accent-orange">
-              <div class="metric-icon">!</div><span>时长异常</span><strong>368</strong><small><b>1.94%</b> 需人工复核</small>
+            <article class="metric-card precise accent-blue">
+              <strong>190000</strong><span>全品牌答卷总量（n）</span>
+            </article>
+            <article class="metric-card precise accent-violet">
+              <strong>209.01<em>秒</em></strong><span>全品牌平均答卷时长（μ）</span>
+            </article>
+            <article class="metric-card precise accent-green">
+              <strong>13.0<em>秒</em></strong><span>全品牌总答卷标准差（σ）</span>
+            </article>
+            <article class="metric-card precise accent-orange">
+              <strong>8.51<em>秒</em></strong><span>有效答题时长</span>
+            </article>
+            <article class="metric-card precise accent-orange">
+              <strong>300.00<em>秒</em></strong><span>有效答卷时长</span>
             </article>
           </section>
 
