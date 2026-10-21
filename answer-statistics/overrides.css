@@ -46,3 +46,50 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+#dimensionTable {
+  table-layout: auto;
+}
+
+#dimensionTable.question-table,
+#dimensionTable.type-table {
+  min-width: 1380px;
+}
+
+#dimensionTable.vehicle-table {
+  min-width: 1580px;
+}
+
+#dimensionTable th {
+  padding: 12px 10px;
+  text-align: center;
+  line-height: 1.45;
+  white-space: normal;
+  vertical-align: middle;
+}
+
+#dimensionTable td {
+  padding: 12px 10px;
+  text-align: center;
+}
+
+#dimensionTable th:first-child,
+#dimensionTable td:first-child {
+  width: 58px;
+}
+
+.row-number {
+  color: #647188;
+  font-weight: 600;
+}
+
+.linked-value {
+  color: #315fd1;
+  font-weight: 600;
+}
+
+.duration-rule {
+  color: #6548ca;
+  font-weight: 600;
+  background: #faf9ff;
+}
