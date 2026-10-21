@@ -79,7 +79,7 @@ function selectFlow(flow){
       els('resultCaption').innerHTML='<span>交互方式</span><strong>当前页弹窗 · 不离开活动页</strong>';
     }
   }else{
-    const mini=environment==='mini';
+    const mini=environment!=='app';
     els('resultTitle').textContent=mini?'小程序预约维保页':'APP 预约维保页';
     result.innerHTML=imageMarkup(mini?'./assets/maintenance-mini.jpg':'./assets/maintenance-app.jpg',mini?'小程序预约维保页':'APP 预约维保页');
     els('resultCaption').innerHTML=`<span>跳转方式</span><strong>${mini?'小程序路由 · pages/maintenance':'APP 原生路由 · maintenance/order'}</strong>`;
@@ -90,7 +90,7 @@ document.querySelectorAll('[data-env]').forEach(b=>b.addEventListener('click',()
   environment=b.dataset.env;
   document.querySelectorAll('[data-env]').forEach(x=>x.classList.toggle('active',x===b));
   els('pickupFlowDesc').textContent=environment==='app'?'APP 内跳转上门取送车预约页面':'非 APP 环境展示引导弹窗';
-  els('maintenanceFlowDesc').textContent=environment==='mini'?'小程序内跳转预约维保页面':'APP 内跳转预约维保页面';
+  els('maintenanceFlowDesc').textContent=environment==='app'?'APP 内跳转预约维保页面':environment==='mini'?'小程序内跳转预约维保页面':'唤起微信小程序预约维保页面';
   selectFlow(currentFlow);
 }));
 selectFlow('coupon');
