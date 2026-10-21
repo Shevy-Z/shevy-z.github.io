@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="微信车户调研平台 · 答题统计" />
+    <title>答题统计 · TCS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="主导航">
+        <a class="brand" href="#" aria-label="TCS 首页">
+          <span class="brand-mark">T</span>
+          <span><strong>TCS</strong><small>微信车户调研平台</small></span>
+        </a>
+
+        <nav class="menu">
+          <p class="menu-label">工作台</p>
+          <a href="#"><span class="menu-icon">⌂</span>首页概览</a>
+          <p class="menu-label">调研管理</p>
+          <a href="#"><span class="menu-icon">◫</span>问卷列表</a>
+          <a href="#"><span class="menu-icon">◇</span>样本管理</a>
+          <a href="#"><span class="menu-icon">◎</span>人工审核</a>
+          <p class="menu-label">数据分析</p>
+          <a class="active" href="#" aria-current="page"><span class="menu-icon">▥</span>答题统计</a>
+          <a href="#"><span class="menu-icon">⌁</span>质量分析</a>
+          <a href="#"><span class="menu-icon">↗</span>报表导出</a>
+          <p class="menu-label">系统</p>
+          <a href="#"><span class="menu-icon">⚙</span>规则配置</a>
+          <a href="#"><span class="menu-icon">☷</span>操作日志</a>
+        </nav>
+
+        <div class="sidebar-foot">
+          <span class="status-dot"></span>
+          <div><strong>数据服务正常</strong><small>刚刚完成同步</small></div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div class="breadcrumb"><span>数据分析</span><b>/</b><strong>答题统计</strong></div>
+          <div class="top-actions">
+            <button class="ghost-button" id="docButton"><span>◫</span>产品说明文档</button>
+            <button class="icon-button" aria-label="通知">♢<i></i></button>
+            <div class="profile"><span class="avatar">陈</span><div><strong>陈小满</strong><small>系统管理员</small></div><span>⌄</span></div>
+          </div>
+        </header>
+
+        <div class="content">
+          <section class="page-heading">
+            <div>
+              <p class="eyebrow">ANSWER ANALYTICS</p>
+              <h1>答题统计</h1>
+              <p>监测样本作答质量，定位异常时长与高风险数据。</p>
+            </div>
+            <div class="heading-actions">
+              <button class="secondary-button" id="ruleButton">⚙ 时长规则</button>
+              <button class="primary-button" id="exportButton">导出当前报表</button>
+            </div>
+          </section>
+
+          <section class="filter-card" aria-label="筛选条件">
+            <label>调研项目
+              <select id="projectFilter"><option>东风日产车主满意度调研</option><option>新能源购车意向研究</option></select>
+            </label>
+            <label>数据周期
+              <select id="periodFilter"><option>近 30 天</option><option>近 7 天</option><option>本季度</option></select>
+            </label>
+            <label>问卷状态
+              <select><option>全部状态</option><option>已完成</option><option>已审核</option></select>
+            </label>
+            <button class="primary-button compact" id="queryButton">查询</button>
+            <button class="text-button" id="resetButton">重置</button>
+            <span class="updated-at">数据更新于 10:24</span>
+          </section>
+
+          <section class="metrics" aria-label="关键指标">
+            <article class="metric-card accent-blue">
+              <div class="metric-icon">▦</div><span>答卷总量</span><strong data-count="190000">190,000</strong><small><em>↑ 12.8%</em> 较上周期</small>
+            </article>
+            <article class="metric-card accent-violet">
+              <div class="metric-icon">◷</div><span>平均答题时长</span><strong>8.51<small>分钟</small></strong><small>中位数 6.82 分钟</small>
+            </article>
+            <article class="metric-card accent-green">
+              <div class="metric-icon">✓</div><span>有效答卷率</span><strong>94.7<small>%</small></strong><small><em>↑ 2.1%</em> 质量提升</small>
+            </article>
+            <article class="metric-card accent-orange">
+              <div class="metric-icon">!</div><span>时长异常</span><strong>368</strong><small><b>1.94%</b> 需人工复核</small>
+            </article>
+          </section>
+
+          <section class="insight-grid">
+            <article class="panel chart-panel">
+              <div class="panel-head">
+                <div><h2>答题趋势</h2><p>近 14 天有效答卷与异常答卷变化</p></div>
+                <div class="legend"><span><i class="blue"></i>有效答卷</span><span><i class="orange"></i>时长异常</span></div>
+              </div>
+              <div class="chart-wrap">
+                <div class="y-labels"><span>20k</span><span>15k</span><span>10k</span><span>5k</span><span>0</span></div>
+                <svg id="trendChart" viewBox="0 0 760 210" preserveAspectRatio="none" role="img" aria-label="答题趋势折线图">
+                  <defs><linearGradient id="areaBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4472e8" stop-opacity=".22"/><stop offset="1" stop-color="#4472e8" stop-opacity="0"/></linearGradient></defs>
+                  <g class="grid-lines"><line x1="0" y1="10" x2="760" y2="10"/><line x1="0" y1="55" x2="760" y2="55"/><line x1="0" y1="100" x2="760" y2="100"/><line x1="0" y1="145" x2="760" y2="145"/><line x1="0" y1="190" x2="760" y2="190"/></g>
+                  <path class="area" d="M0,154 C40,140 54,124 90,132 S155,96 190,109 S252,80 292,88 S350,70 390,83 S452,50 486,64 S552,33 586,50 S646,16 680,30 S730,18 760,22 L760,190 L0,190Z"/>
+                  <path class="line-main" d="M0,154 C40,140 54,124 90,132 S155,96 190,109 S252,80 292,88 S350,70 390,83 S452,50 486,64 S552,33 586,50 S646,16 680,30 S730,18 760,22"/>
+                  <path class="line-alert" d="M0,176 C45,170 62,181 105,169 S170,177 220,165 S294,172 345,156 S425,168 475,152 S545,164 598,148 S690,162 760,145"/>
+                  <circle class="focus-dot" cx="586" cy="50" r="5"/><g class="chart-tip"><rect x="523" y="8" width="126" height="49" rx="8"/><text x="537" y="28">10月18日</text><text x="537" y="46">有效 16,842</text></g>
+                </svg>
+                <div class="x-labels"><span>10/08</span><span>10/10</span><span>10/12</span><span>10/14</span><span>10/16</span><span>10/18</span><span>10/20</span></div>
+              </div>
+            </article>
+
+            <article class="panel distribution-panel">
+              <div class="panel-head"><div><h2>时长分布</h2><p>右偏分布 · 对数尺度</p></div><span class="live-tag">规则已生效</span></div>
+              <div class="distribution-chart">
+                <div class="threshold p05"><span>P05 · 1.8m</span></div>
+                <div class="threshold p95"><span>P95 · 18.6m</span></div>
+                <svg viewBox="0 0 420 190" preserveAspectRatio="none" aria-label="右偏时长分布曲线">
+                  <defs><linearGradient id="distArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d63e7" stop-opacity=".38"/><stop offset="1" stop-color="#7d63e7" stop-opacity=".03"/></linearGradient></defs>
+                  <path d="M5,178 C28,177 40,160 55,106 C70,50 95,25 126,42 C158,60 166,104 196,127 C229,152 260,157 298,165 C334,172 370,176 415,178 L415,190 L5,190Z" fill="url(#distArea)"/>
+                  <path d="M5,178 C28,177 40,160 55,106 C70,50 95,25 126,42 C158,60 166,104 196,127 C229,152 260,157 298,165 C334,172 370,176 415,178" fill="none" stroke="#7357db" stroke-width="3"/>
+                </svg>
+                <div class="dist-axis"><span>0</span><span>5</span><span>10</span><span>20</span><span>40+ 分钟</span></div>
+              </div>
+              <div class="rule-summary"><span class="rule-icon">ƒ</span><div><strong>按百分位识别异常</strong><p>低于 P05 或高于 P95 的答卷进入人工审核，不再使用正态分布 Z-score。</p></div><button id="detailRuleButton">查看规则</button></div>
+            </article>
+          </section>
+
+          <section class="panel data-panel">
+            <div class="panel-head table-head">
+              <div><h2>维度分析</h2><p>查看各维度的答题效率与异常情况</p></div>
+              <div class="table-actions"><label class="search-box">⌕<input id="tableSearch" placeholder="搜索问卷、车型或类型" /></label><button class="secondary-button">筛选</button></div>
+            </div>
+            <div class="tabs" role="tablist">
+              <button class="tab active" data-tab="question">问卷维度 <span>24</span></button>
+              <button class="tab" data-tab="vehicle">车型维度 <span>18</span></button>
+              <button class="tab" data-tab="type">问卷类型 <span>6</span></button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>对象名称</th><th>关联项目</th><th>答卷量</th><th>平均时长</th><th>中位时长</th><th>百分位阈值</th><th>异常答卷</th><th>异常率</th><th>人工审核</th><th></th></tr></thead>
+                <tbody id="dataRows"></tbody>
+              </table>
+            </div>
+            <div class="pagination"><span id="resultCount">共 24 条数据</span><div><button disabled>‹</button><button class="current">1</button><button>2</button><button>3</button><button>›</button></div><span>10 条 / 页</span></div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+    <aside class="doc-drawer" id="docDrawer" aria-hidden="true" aria-label="产品说明文档">
+      <div class="drawer-head"><div><span class="doc-kicker">PRODUCT BRIEF · V1.3</span><h2>答题统计 · 产品说明</h2></div><button class="close-button" id="closeDrawer" aria-label="关闭">×</button></div>
+      <div class="drawer-nav"><button class="active" data-section="overview">功能概述</button><button data-section="rule">时长规则</button><button data-section="fields">字段口径</button></div>
+      <div class="drawer-content">
+        <section class="doc-section" id="overview">
+          <h3>1. 功能概述</h3>
+          <p>答题统计用于从问卷、车型和问卷类型三个维度，监控答卷规模、作答效率与异常质量，帮助审核人员快速定位需复核样本。</p>
+          <div class="callout blue"><strong>本次更新</strong><p>新增左侧「答题统计」菜单；人工审核的时长判定由正态假设调整为适配右偏数据的百分位规则。</p></div>
+          <h4>核心操作</h4>
+          <ol><li>选择项目、周期和问卷状态后点击「查询」。</li><li>通过趋势与分布识别异常波动。</li><li>切换分析维度，在列表查看异常答卷并进入人工审核。</li></ol>
+        </section>
+        <section class="doc-section" id="rule">
+          <h3>2. 人工审核 · 时长判断规则</h3>
+          <p>实际答题时长通常呈右偏长尾，均值与标准差容易被极端值拉高。因此不再使用原正态分布 Z-score，改用<strong>分组百分位</strong>作为主判定。</p>
+          <div class="formula-card"><span>建议规则</span><strong>异常 = t &lt; P05 或 t &gt; P95</strong><small>t = 有效作答时长；阈值按问卷版本 × 渠道分组计算</small></div>
+          <h4>处理流程</h4>
+          <div class="steps"><div><b>1</b><span><strong>数据清洗</strong><small>排除预览、超时中断与无效记录</small></span></div><i></i><div><b>2</b><span><strong>分组计算</strong><small>对时长做 log1p 后计算 P05 / P95</small></span></div><i></i><div><b>3</b><span><strong>生成标记</strong><small>过短 / 正常 / 过长，写入判定版本</small></span></div></div>
+          <div class="callout amber"><strong>小样本保护</strong><p>分组有效样本少于 200 时，回退到同问卷类型近 90 天基线；少于 50 时仅提示、不自动判异常。</p></div>
+          <h4>落地改动</h4>
+          <ul><li>离线任务：每日重算分组阈值，并保留规则版本与样本窗口。</li><li>审核接口：返回 <code>duration_status</code>、<code>threshold_low</code>、<code>threshold_high</code> 与判定原因。</li><li>页面列表：展示阈值、异常类型及规则状态，支持筛选并跳转人工审核。</li><li>上线验收：历史 30 天回放，对比人工命中率、误报率和异常覆盖率。</li></ul>
+        </section>
+        <section class="doc-section" id="fields">
+          <h3>3. 字段与指标口径</h3>
+          <dl class="field-list"><div><dt>有效答题时长</dt><dd>提交时间减开始时间，扣除页面切后台超过 5 分钟的停留段。</dd></div><div><dt>异常率</dt><dd>时长异常答卷数 ÷ 有效答卷数。</dd></div><div><dt>P05 / P95</dt><dd>同分组有效时长在当前滚动窗口内的第 5 / 95 百分位值。</dd></div><div><dt>人工审核</dt><dd>异常样本进入待审核池，由审核员确认通过或驳回。</dd></div></dl>
+          <p class="doc-note">更新时间：2026-10-21 · 负责人：数据产品组</p>
+        </section>
+      </div>
+    </aside>
+
+    <div class="toast" id="toast"><span>✓</span><p><strong>已完成</strong><small>报表已准备就绪</small></p></div>
+    <script src="app.js"></script>
+  </body>
+</html>
