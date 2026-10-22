@@ -106,6 +106,17 @@
             </article>
           </section>
 
+          <section class="percentile-actions" aria-label="有效分位设置">
+            <button class="percentile-button" id="questionPercentileButton">
+              <span class="percentile-button-icon">P</span>
+              <span><strong>答题有效分位</strong><small id="questionPercentileSummary">当前 P ≤ 95.00%</small></span>
+            </button>
+            <button class="percentile-button" id="answerPercentileButton">
+              <span class="percentile-button-icon">P</span>
+              <span><strong>答卷有效分位</strong><small id="answerPercentileSummary">当前 P ≥ 5.00%</small></span>
+            </button>
+          </section>
+
           <section class="insight-grid">
             <article class="panel chart-panel">
               <div class="panel-head">
@@ -193,6 +204,31 @@
         </section>
       </div>
     </aside>
+
+    <div class="setting-backdrop" id="settingBackdrop"></div>
+    <section class="setting-modal" id="questionPercentileModal" role="dialog" aria-modal="true" aria-labelledby="questionPercentileTitle" aria-hidden="true">
+      <div class="setting-modal-head">
+        <div><span class="setting-kicker">QUESTION PERCENTILE</span><h2 id="questionPercentileTitle">题目级有效分位</h2><p>设置题目作答时长纳入有效统计的分位上限。</p></div>
+        <button class="setting-close" data-setting-close aria-label="关闭">×</button>
+      </div>
+      <div class="setting-modal-body">
+        <label class="percentile-field"><span>P ≤</span><input id="questionPercentileInput" type="number" min="0" max="100" step="0.01" value="95.00" /><b>%</b></label>
+        <div class="setting-hint"><span>i</span><p>取值范围 0–100，建议保持 95.00。超过该分位的题目作答时长不纳入有效统计。</p></div>
+      </div>
+      <div class="setting-modal-foot"><button class="secondary-button" data-setting-close>取消</button><button class="primary-button" id="saveQuestionPercentile">确认</button></div>
+    </section>
+
+    <section class="setting-modal" id="answerPercentileModal" role="dialog" aria-modal="true" aria-labelledby="answerPercentileTitle" aria-hidden="true">
+      <div class="setting-modal-head">
+        <div><span class="setting-kicker">ANSWER PERCENTILE</span><h2 id="answerPercentileTitle">答卷级有效分位</h2><p>设置完整答卷时长纳入有效统计的分位下限。</p></div>
+        <button class="setting-close" data-setting-close aria-label="关闭">×</button>
+      </div>
+      <div class="setting-modal-body">
+        <label class="percentile-field"><span>P ≥</span><input id="answerPercentileInput" type="number" min="0" max="100" step="0.01" value="5.00" /><b>%</b></label>
+        <div class="setting-hint"><span>i</span><p>取值范围 0–100，建议保持 5.00。低于该分位的完整答卷时长不纳入有效统计。</p></div>
+      </div>
+      <div class="setting-modal-foot"><button class="secondary-button" data-setting-close>取消</button><button class="primary-button" id="saveAnswerPercentile">确认</button></div>
+    </section>
 
     <div class="toast" id="toast"><span>✓</span><p><strong>已完成</strong><small>报表已准备就绪</small></p></div>
     <script src="app.js"></script>
