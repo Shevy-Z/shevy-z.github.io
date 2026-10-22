@@ -69,6 +69,7 @@ const drawer = document.querySelector('#docDrawer');
 const backdrop = document.querySelector('#drawerBackdrop');
 function openDrawer(section = 'overview') {
   drawer.classList.add('open'); backdrop.classList.add('open'); drawer.setAttribute('aria-hidden','false');
+  document.querySelectorAll('.drawer-nav button').forEach(button => button.classList.toggle('active', button.dataset.section === section));
   setTimeout(() => document.querySelector(`#${section}`).scrollIntoView({behavior:'smooth', block:'start'}), 180);
   document.body.style.overflow = 'hidden';
 }
