@@ -90,6 +90,65 @@ function showToast(title, detail) {
   toast.querySelector('strong').textContent = title; toast.querySelector('small').textContent = detail;
   toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
 }
+
+const settingBackdrop = document.querySelector('#settingBackdrop');
+const settingModals = document.querySelectorAll('.setting-modal');
+const questionPercentileInput = document.querySelector('#questionPercentileInput');
+const answerPercentileInput = document.querySelector('#answerPercentileInput');
+const questionPercentileSummary = document.querySelector('#questionPercentileSummary');
+const answerPercentileSummary = document.querySelector('#answerPercentileSummary');
+
+function normalizePercentile(value) {
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 && number <= 100 ? number.toFixed(2) : null;
+}
+
+function openSettingModal(id) {
+  const modal = document.querySelector(`#${id}`);
+  settingModals.forEach(item => { item.classList.remove('open'); item.setAttribute('aria-hidden', 'true'); });
+  modal.classList.add('open'); modal.setAttribute('aria-hidden', 'false');
+  settingBackdrop.classList.add('open'); document.body.style.overflow = 'hidden';
+  setTimeout(() => modal.querySelector('input').focus(), 160);
+}
+
+function closeSettingModal() {
+  settingModals.forEach(item => { item.classList.remove('open'); item.setAttribute('aria-hidden', 'true'); });
+  settingBackdrop.classList.remove('open'); document.body.style.overflow = '';
+}
+
+function loadPercentileSettings() {
+  const questionValue = normalizePercentile(localStorage.getItem('tcs-question-percentile') || '95');
+  const answerValue = normalizePercentile(localStorage.getItem('tcs-answer-percentile') || '5');
+  questionPercentileInput.value = questionValue; answerPercentileInput.value = answerValue;
+  questionPercentileSummary.textContent = `当前 P ≤ ${questionValue}%`;
+  answerPercentileSummary.textContent = `当前 P ≥ ${answerValue}%`;
+}
+
+function savePercentile(type) {
+  const isQuestion = type === 'question';
+  const input = isQuestion ? questionPercentileInput : answerPercentileInput;
+  const value = normalizePercentile(input.value);
+  if (value === null) {
+    input.classList.add('invalid'); input.focus();
+    showToast('无法保存', '请输入 0 到 100 之间的分位值');
+    return;
+  }
+  input.classList.remove('invalid'); input.value = value;
+  localStorage.setItem(isQuestion ? 'tcs-question-percentile' : 'tcs-answer-percentile', value);
+  (isQuestion ? questionPercentileSummary : answerPercentileSummary).textContent = `当前 P ${isQuestion ? '≤' : '≥'} ${value}%`;
+  closeSettingModal();
+  showToast(`${isQuestion ? '答题' : '答卷'}有效分位已保存`, `规则已更新为 P ${isQuestion ? '≤' : '≥'} ${value}%`);
+}
+
+document.querySelector('#questionPercentileButton').addEventListener('click', () => openSettingModal('questionPercentileModal'));
+document.querySelector('#answerPercentileButton').addEventListener('click', () => openSettingModal('answerPercentileModal'));
+document.querySelector('#saveQuestionPercentile').addEventListener('click', () => savePercentile('question'));
+document.querySelector('#saveAnswerPercentile').addEventListener('click', () => savePercentile('answer'));
+document.querySelectorAll('[data-setting-close]').forEach(button => button.addEventListener('click', closeSettingModal));
+settingBackdrop.addEventListener('click', closeSettingModal);
+document.addEventListener('keydown', event => { if (event.key === 'Escape') closeSettingModal(); });
+loadPercentileSettings();
+
 document.querySelector('#exportButton').addEventListener('click', () => showToast('报表已导出', '已生成「答题统计_20261021.xlsx」'));
 document.querySelector('#queryButton').addEventListener('click', () => showToast('查询完成', '已加载最新统计数据'));
 document.querySelector('#resetButton').addEventListener('click', () => { document.querySelectorAll('.filter-card select').forEach(s => s.selectedIndex = 0); showToast('筛选条件已重置','当前展示全部数据'); });
