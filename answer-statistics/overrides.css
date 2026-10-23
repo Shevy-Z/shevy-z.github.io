@@ -636,3 +636,75 @@
 .doc-tab-panel .drawer-nav {
   flex: none;
 }
+
+/* Compact full-width page layout */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  min-width: 1024px;
+}
+
+.sidebar {
+  width: 196px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.main {
+  width: calc(100% - 196px);
+  min-width: 0;
+  margin-left: 196px;
+}
+
+.topbar {
+  padding-left: 22px;
+  padding-right: 22px;
+}
+
+.content {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 22px 22px 44px;
+}
+
+.filter-card {
+  gap: 10px;
+}
+
+.table-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.data-panel,
+.insight-grid,
+.panel {
+  min-width: 0;
+}
+
+@media (max-width: 1280px) {
+  .sidebar {
+    width: 184px;
+  }
+
+  .main {
+    width: calc(100% - 184px);
+    margin-left: 184px;
+  }
+
+  .topbar {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .content {
+    padding: 18px 18px 38px;
+  }
+}
