@@ -12,7 +12,7 @@ const records = [
 const els = id => document.getElementById(id);
 const pages = {campaign: els('campaignPage'), records: els('recordsPage'), interaction: els('interactionPage')};
 const titles = {campaign:['11/12 双月活动页','11/12 双月活动页'],records:['双月活动记录表','双月活动记录表'],interaction:['页面交互说明','页面交互说明']};
-const sections = {campaign:'活动前端页面',records:'卡券管理',interaction:'活动前端页面'};
+const sections = {campaign:'活动前端页面',records:'表单管理',interaction:'活动前端页面'};
 
 function showPage(name){
   Object.values(pages).forEach(p => p.classList.remove('active-page'));
@@ -26,6 +26,13 @@ function showPage(name){
 }
 
 document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click',()=>showPage(item.dataset.page)));
+document.querySelectorAll('.nav-subgroup-header').forEach(header => header.addEventListener('click',()=>{
+  const group=header.closest('.nav-subgroup');
+  if(!group.querySelector('.nav-grandchildren')) return;
+  const open=group.classList.toggle('open');
+  const chevron=header.querySelector('.chevron');
+  if(chevron) chevron.textContent=open?'⌃':'⌄';
+}));
 els('interactionButton').addEventListener('click',()=>showPage('interaction'));
 els('previewInteraction').addEventListener('click',()=>showPage('interaction'));
 els('backToCampaign').addEventListener('click',()=>showPage('campaign'));

@@ -16,7 +16,7 @@
     .backend-brand small{display:block;color:#5f7286;font-size:9px;font-weight:500;letter-spacing:.16em;margin-top:5px;text-transform:uppercase}
     .main-nav{display:block;padding:0}.nav-group-header{height:58px;padding:0 24px;background:#082036;gap:12px;font-size:15px;font-weight:650}.nav-group-header .group-icon{width:20px;height:20px;border:1px solid #9eabba;display:grid;place-items:center;font-size:10px}
     .nav-level-two{padding:10px 0}.nav-subgroup{border-bottom:1px solid rgba(255,255,255,.025)}.nav-subgroup-header{height:48px;padding:0 24px 0 46px;color:#9eabba;font-size:14px}.nav-subgroup-header:hover{color:#fff;background:rgba(255,255,255,.03)}
-    .nav-grandchildren{padding:2px 14px 9px 34px}.nav-grandchildren .nav-item{width:100%;padding:11px 12px;font-size:12px;color:#909dab;border-radius:5px}.nav-grandchildren .nav-item.active{color:#fff;background:#132b40;box-shadow:inset 3px 0 0 var(--orange)}
+    .nav-grandchildren{padding:2px 14px 9px 34px}.nav-subgroup:not(.open) .nav-grandchildren{display:none}.nav-grandchildren .nav-item{width:100%;padding:11px 12px;font-size:12px;color:#909dab;border-radius:5px}.nav-grandchildren .nav-item.active{color:#fff;background:#132b40;box-shadow:inset 3px 0 0 var(--orange)}
     .sidebar-footer{margin:22px 20px 0;padding-top:18px}.campaign-chip{display:none}
     @media(max-width:900px){.sidebar{width:220px;padding:0 0 20px}.main-content{margin-left:220px;width:calc(100% - 220px)}.backend-brand{font-size:17px;padding-left:20px}.nav-group-header{padding:0 18px}.nav-subgroup-header{padding-left:38px}.frontend-panel{padding-left:10px;padding-right:10px}.nav-item span:last-child{display:block}.sidebar-footer>div:nth-child(2){display:flex}}
     @media(max-width:650px){.sidebar{position:fixed;top:0;bottom:0;left:0;right:auto;width:72px;height:100vh;padding:0;display:flex;flex-direction:column}.main-content{margin-left:72px;margin-bottom:0;width:calc(100% - 72px)}.frontend-panel{padding:12px 8px}.portal-heading{justify-content:center;padding:0}.portal-heading>span:not(.portal-icon){display:none}.frontend-panel .nav-item{padding:10px 4px;justify-content:center}.frontend-panel .nav-item span{font-size:0}.frontend-panel .nav-item span:before{content:'11/12';font-size:9px}.backend-brand{font-size:0;padding:15px 8px;text-align:center}.backend-brand:before{content:'NISSAN';font-size:9px}.backend-brand small,.nav-group-header>span:not(.group-icon),.nav-subgroup-header,.sidebar-footer{display:none}.nav-group-header{padding:0;justify-content:center}.nav-level-two{padding:0}.nav-grandchildren{padding:5px}.nav-grandchildren .nav-item{padding:10px 3px;justify-content:center}.nav-grandchildren .nav-item span{font-size:0}.nav-grandchildren .nav-item span:before{content:'记录';font-size:9px}.topbar{padding-left:14px;padding-right:14px}}
@@ -38,8 +38,11 @@
           <div class="nav-subgroup">
             <button class="nav-subgroup-header" type="button"><span>活动管理</span><span class="chevron">⌄</span></button>
           </div>
-          <div class="nav-subgroup open">
-            <button class="nav-subgroup-header" type="button"><span>卡券管理</span><span class="chevron">⌃</span></button>
+          <div class="nav-subgroup">
+            <button class="nav-subgroup-header" type="button"><span>卡券管理</span><span class="chevron">⌄</span></button>
+          </div>
+          <div class="nav-subgroup">
+            <button class="nav-subgroup-header" type="button"><span>表单管理</span><span class="chevron">⌄</span></button>
             <div class="nav-grandchildren">
               <button class="nav-item" data-page="records"><span>双月活动记录表</span></button>
             </div>
