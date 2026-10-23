@@ -177,7 +177,7 @@
 
     <div class="drawer-backdrop" id="drawerBackdrop"></div>
     <aside class="doc-drawer" id="docDrawer" aria-hidden="true" aria-label="产品说明文档">
-      <div class="drawer-head"><div><span class="doc-kicker">PRODUCT BRIEF · V1.5</span><h2>答题统计 · 产品说明</h2></div><button class="close-button" id="closeDrawer" aria-label="关闭">×</button></div>
+      <div class="drawer-head"><div><span class="doc-kicker">PRODUCT BRIEF · V1.6</span><h2>答题统计 · 产品说明</h2></div><button class="close-button" id="closeDrawer" aria-label="关闭">×</button></div>
       <div class="doc-primary-tabs" role="tablist" aria-label="产品说明文档分类">
         <button class="active" data-doc-tab="page" role="tab" aria-selected="true"><span>页面说明文档</span><small>功能、操作与字段口径</small></button>
         <button data-doc-tab="rules" role="tab" aria-selected="false"><span>时长规则说明</span><small>计算、分位与补偿公式</small></button>
@@ -210,8 +210,49 @@
           </section>
           <section class="doc-section" id="page-fields">
             <h3>4. 字段与指标口径</h3>
-            <dl class="field-list"><div><dt>答题总量</dt><dd>满足筛选条件的有效题目作答记录数。</dd></div><div><dt>答卷总量</dt><dd>满足筛选条件且完成提交的有效问卷数。</dd></div><div><dt>平均时长 μ</dt><dd>对应统计口径下有效时长的平均值。</dd></div><div><dt>标准差 σ</dt><dd>描述有效时长相对于平均值的离散程度。</dd></div><div><dt>有效答题时长</dt><dd>题目级规则计算后用于统计的作答时长阈值或结果。</dd></div><div><dt>有效答卷时长</dt><dd>答卷级规则计算后用于审核判断的时长阈值或结果。</dd></div><div><dt>人工审核</dt><dd>异常样本进入待审核池，由审核人员确认通过或驳回。</dd></div></dl>
-            <p class="doc-note">页面说明版本：V1.5 · 更新时间：2026-10-23</p>
+            <p>以下公式均在当前筛选条件和同一统计分组内计算。题目级以有效作答记录为样本，答卷级以完成问卷的推定时长为样本。</p>
+
+            <h4>4.1 数量指标</h4>
+            <div class="doc-formula-stack">
+              <div><span>答题总量</span><strong>n<sub>题</sub> = ∑<sub>r∈R题</sub> 𝟙(r 为有效题目作答记录)</strong><small>R题为筛选范围内全部题目作答记录；𝟙(条件)成立取 1，否则取 0。</small></div>
+              <div><span>答卷总量</span><strong>n<sub>卷</sub> = ∑<sub>q∈R卷</sub> 𝟙(q 已完成且有效)</strong><small>预览、未提交、缺少开始或提交时间、无效样本不计入。</small></div>
+            </div>
+
+            <h4>4.2 平均时长</h4>
+            <div class="doc-formula-grid">
+              <div class="doc-formula"><span>平均答题时长</span><strong>μ<sub>题</sub> = (1 / n<sub>题</sub>) · ∑<sub>j=1</sub><sup>n题</sup> x<sub>j</sub></strong><small>xⱼ 为第 j 条有效题目作答时长，单位为秒。</small></div>
+              <div class="doc-formula"><span>平均答卷时长</span><strong>μ<sub>卷</sub> = (1 / n<sub>卷</sub>) · ∑<sub>k=1</sub><sup>n卷</sup> y<sub>k</sub></strong><small>yₖ 为第 k 份完成答卷的推定时长，统一换算为秒或分钟。</small></div>
+            </div>
+
+            <h4>4.3 标准差</h4>
+            <div class="doc-formula-grid">
+              <div class="doc-formula"><span>答题标准差</span><strong>σ<sub>题</sub> = √[(1 / n<sub>题</sub>) · ∑(x<sub>j</sub> − μ<sub>题</sub>)²]</strong><small>反映单题作答时长的离散程度。</small></div>
+              <div class="doc-formula"><span>答卷标准差</span><strong>σ<sub>卷</sub> = √[(1 / n<sub>卷</sub>) · ∑(y<sub>k</sub> − μ<sub>卷</sub>)²]</strong><small>反映整份答卷推定时长的离散程度。</small></div>
+            </div>
+            <div class="callout blue"><strong>总体标准差口径</strong><p>页面按当前分组的全量有效数据计算，因此分母使用 n。若抽样估计总体，应将分母改为 n − 1。</p></div>
+
+            <h4>4.4 有效答题时长</h4>
+            <p>生产规则优先采用适配右偏分布的经验百分位。默认上限为第 95 百分位，超过上限的超长单题按原业务方案使用 μ题 / 3 替代。</p>
+            <div class="doc-formula-stack">
+              <div><span>经验百分位上限</span><strong>T<sub>题,95</sub> = Q<sub>0.95</sub>({x₁, x₂, …, x<sub>n题</sub>})</strong><small>Qₚ 表示样本排序后的第 p 分位数；配置值变化时将 0.95 替换为 p题。</small></div>
+              <div><span>正态兼容口径</span><strong>T<sub>题,p</sub> = μ<sub>题</sub> + σ<sub>题</sub> · Φ<sup>−1</sup>(p<sub>题</sub>)</strong><small>仅在沿用正态假设时使用；Φ⁻¹ 为标准正态分布的反函数。</small></div>
+              <div><span>单题有效时长</span><strong>x<sub>i</sub><sup>*</sup> = { x<sub>i</sub>，P<sub>题,i</sub> &lt; p<sub>题</sub>； μ<sub>题</sub>/3，P<sub>题,i</sub> ≥ p<sub>题</sub> }</strong><small>P题,i = Φ[(xᵢ − μ题) / σ题]；默认 p题 = 95%。</small></div>
+            </div>
+
+            <h4>4.5 有效答卷时长与审核判断</h4>
+            <div class="doc-formula-stack">
+              <div><span>单份答卷推定时长</span><strong>y<sub>k</sub> = ∑<sub>i=1</sub><sup>mₖ</sup> x<sub>k,i</sub><sup>*</sup></strong><small>mₖ 为第 k 份答卷包含的题目数；若页面以分钟展示，则再除以 60。</small></div>
+              <div><span>答卷经验分位下限</span><strong>T<sub>卷,05</sub> = Q<sub>0.05</sub>({y₁, y₂, …, y<sub>n卷</sub>})</strong><small>默认取第 5 百分位；配置值变化时将 0.05 替换为 p卷。</small></div>
+              <div><span>答卷分位</span><strong>Z<sub>卷,k</sub> = (y<sub>k</sub> − μ<sub>卷</sub>) / σ<sub>卷</sub>；P<sub>卷,k</sub> = Φ(Z<sub>卷,k</sub>)</strong><small>正态兼容口径下，P卷表示该答卷在参考分布中的左侧累计分位。</small></div>
+              <div><span>异常判定</span><strong>异常<sub>k</sub> = 𝟙(P<sub>卷,k</sub> ≤ p<sub>卷</sub>)</strong><small>默认 p卷 = 5%；经验百分位方案等价写为 𝟙(yₖ ≤ T卷,05)。</small></div>
+            </div>
+
+            <h4>4.6 异常率与人工审核</h4>
+            <div class="doc-formula wide"><span>答卷时长异常率</span><strong>异常率 = (∑<sub>k=1</sub><sup>n卷</sup> 异常<sub>k</sub> / n<sub>卷</sub>) × 100%</strong><small>分母仅包含满足当前筛选条件的有效完成答卷。</small></div>
+            <dl class="field-list"><div><dt>正常</dt><dd>P卷高于配置下限，保留正常状态。</dd></div><div><dt>异常</dt><dd>P卷不高于配置下限，标记为答题过快或疑似乱答，并进入人工审核。</dd></div><div><dt>待观察</dt><dd>样本不足或 σ = 0，无法稳定计算分位时不自动判异常。</dd></div></dl>
+
+            <div class="callout amber"><strong>计算注意事项</strong><p>所有时长必须先统一单位；同一指标应按车型、问卷版本等同质分组计算。实际数据明显右偏时使用经验 Qₚ，不应直接用 μ ± zσ 替代。</p></div>
+            <p class="doc-note">页面说明版本：V1.6 · 更新时间：2026-10-23</p>
           </section>
         </div>
       </div>
