@@ -47,7 +47,15 @@ els('recordSearch').addEventListener('input',e=>renderRecords(e.target.value));
 
 const drawer = els('documentDrawer');
 function toggleDrawer(open){drawer.classList.toggle('open',open);els('drawerOverlay').classList.toggle('open',open);drawer.setAttribute('aria-hidden',String(!open));}
-els('documentButton').addEventListener('click',()=>toggleDrawer(true));
+function openDocument(type){
+  const records=type==='records';
+  els('drawerTitle').textContent=records?'双月活动记录表产品说明':'11/12 双月活动产品说明';
+  els('campaignDocView').classList.toggle('active',!records);
+  els('recordsDocView').classList.toggle('active',records);
+  toggleDrawer(true);
+}
+els('documentButton').addEventListener('click',()=>openDocument('campaign'));
+els('recordsDocumentButton').addEventListener('click',()=>openDocument('records'));
 els('closeDrawer').addEventListener('click',()=>toggleDrawer(false));
 els('drawerOverlay').addEventListener('click',()=>toggleDrawer(false));
 
