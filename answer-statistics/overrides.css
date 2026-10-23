@@ -708,3 +708,128 @@ body {
     padding: 18px 18px 38px;
   }
 }
+
+/* 2560 × 1318 one-screen dashboard */
+@media (min-width: 2200px) {
+  .topbar {
+    height: 56px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .content {
+    padding: 16px 24px 20px;
+  }
+
+  .page-heading {
+    margin-bottom: 12px;
+  }
+
+  .page-heading h1 {
+    margin-bottom: 4px;
+    font-size: 24px;
+  }
+
+  .eyebrow {
+    margin-bottom: 4px;
+  }
+
+  .filter-card {
+    padding: 10px 14px;
+    margin-bottom: 10px;
+  }
+
+  .metrics {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 10px;
+    margin: 10px 0;
+  }
+
+  .metric-card.precise {
+    min-height: 94px;
+    padding: 16px 8px 14px;
+  }
+
+  .metric-card.precise strong {
+    margin-bottom: 8px;
+    font-size: 20px;
+  }
+
+  .metric-card.precise strong em {
+    font-size: 14px;
+  }
+
+  .percentile-actions {
+    margin: 0 0 10px;
+    gap: 10px;
+  }
+
+  .percentile-button {
+    min-width: 178px;
+    padding: 8px 12px;
+  }
+
+  .insight-grid {
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .chart-panel,
+  .distribution-panel {
+    padding: 15px 16px;
+  }
+
+  .chart-wrap {
+    height: 202px;
+    margin-top: 13px;
+  }
+
+  .chart-wrap svg {
+    height: 174px;
+  }
+
+  .y-labels {
+    height: 164px;
+  }
+
+  .distribution-chart {
+    height: 174px;
+    margin-top: 9px;
+  }
+
+  .distribution-chart svg {
+    height: 151px;
+  }
+
+  .rule-summary {
+    margin-top: 8px;
+    padding: 8px 10px;
+  }
+
+  .table-head {
+    padding: 13px 16px 9px;
+  }
+
+  .tabs {
+    padding: 0 16px;
+  }
+
+  .tab {
+    padding-bottom: 8px;
+  }
+
+  #dimensionTable th,
+  #dimensionTable td {
+    padding: 8px 9px;
+    line-height: 1.35;
+  }
+
+  .pagination {
+    padding: 8px 16px;
+  }
+
+  .pagination button {
+    width: 23px;
+    height: 23px;
+  }
+}
