@@ -11,13 +11,15 @@ const records = [
 
 const els = id => document.getElementById(id);
 const pages = {campaign: els('campaignPage'), records: els('recordsPage'), interaction: els('interactionPage')};
-const titles = {campaign:['10/11 双月活动页','10/11 双月活动'],records:['活动领券记录表','活动领券记录表'],interaction:['页面交互说明','页面交互说明']};
+const titles = {campaign:['11/12 双月活动页','11/12 双月活动页'],records:['双月活动记录表','双月活动记录表'],interaction:['页面交互说明','页面交互说明']};
+const sections = {campaign:'活动前端页面',records:'卡券管理',interaction:'活动前端页面'};
 
 function showPage(name){
   Object.values(pages).forEach(p => p.classList.remove('active-page'));
   pages[name].classList.add('active-page');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === name || (name === 'interaction' && n.dataset.page === 'campaign')));
   els('breadcrumbTitle').textContent = titles[name][0];
+  els('breadcrumbSection').textContent = sections[name];
   els('pageTitle').textContent = titles[name][1];
   els('topActions').style.display = name === 'records' ? 'none' : 'flex';
   window.scrollTo({top:0,behavior:'smooth'});
