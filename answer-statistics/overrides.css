@@ -868,3 +868,33 @@ body {
   font-size: 10px;
   font-weight: 700;
 }
+
+/* Center table pagination controls */
+.pagination {
+  position: relative;
+  min-height: 41px;
+}
+
+.pagination > div {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  gap: 6px;
+  transform: translate(-50%, -50%);
+}
+
+.pagination button {
+  width: 27px;
+  height: 27px;
+}
+
+@media (min-width: 2200px) {
+  .pagination {
+    min-height: 39px;
+  }
+
+  .pagination button {
+    width: 27px;
+    height: 27px;
+  }
+}
