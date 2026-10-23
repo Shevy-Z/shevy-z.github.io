@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="答题时长采用百分位对应右偏分布的业务解释与详细落地方案" />
+  <title>答题时长百分位规则 · 右偏分布解决方案</title>
+  <style>
+    :root {
+      --navy:#101a33; --ink:#1d2942; --muted:#68758c; --line:#e4e9f1;
+      --bg:#f4f6fa; --card:#fff; --blue:#3769dc; --blue-soft:#edf3ff;
+      --violet:#7057d9; --orange:#e37b45; --orange-soft:#fff4ed;
+      --green:#168765; --green-soft:#eaf8f3; --red:#cf5b4c; --shadow:0 10px 30px rgba(27,42,75,.07);
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); background:var(--bg); font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif; }
+    a { color:inherit; text-decoration:none; }
+    button { font:inherit; }
+    .topbar {
+      position:sticky; top:0; z-index:20; height:64px; padding:0 max(28px,calc((100vw - 1500px)/2));
+      display:flex; align-items:center; justify-content:space-between;
+      background:rgba(255,255,255,.9); border-bottom:1px solid rgba(25,40,70,.08); backdrop-filter:blur(18px);
+    }
+    .brand { display:flex; align-items:center; gap:11px; }
+    .brand-mark { width:34px; height:34px; display:grid; place-items:center; border-radius:9px; color:#fff; background:linear-gradient(135deg,#4f7de6,#2e58bf); font-weight:800; }
+    .brand strong,.brand small { display:block; }
+    .brand strong { font-size:13px; }
+    .brand small { margin-top:2px; color:#8a96a9; font-size:9px; }
+    .top-tag { padding:7px 11px; border-radius:18px; color:#3764ce; background:#edf3ff; font-size:10px; font-weight:700; }
+    .hero {
+      padding:54px max(28px,calc((100vw - 1500px)/2)) 42px;
+      color:#fff; background:
+        radial-gradient(circle at 82% 10%,rgba(111,91,222,.4),transparent 30%),
+        linear-gradient(135deg,#101a33,#18274a 68%,#22386b);
+    }
+    .hero-grid { display:grid; grid-template-columns:1.15fr .85fr; gap:58px; align-items:center; }
+    .eyebrow { margin:0 0 12px; color:#91aff8; font-size:10px; font-weight:800; letter-spacing:.18em; }
+    .hero h1 { max-width:760px; margin:0; font-size:44px; line-height:1.18; letter-spacing:-.035em; }
+    .hero-copy { max-width:760px; margin:20px 0 0; color:#c0cbe0; font-size:15px; line-height:1.9; }
+    .hero-copy strong { color:#fff; }
+    .hero-pills { display:flex; flex-wrap:wrap; gap:9px; margin-top:25px; }
+    .hero-pills span { padding:8px 11px; border:1px solid rgba(255,255,255,.15); border-radius:20px; background:rgba(255,255,255,.06); color:#dce5f8; font-size:10px; }
+    .chart-card { padding:23px 24px 17px; border:1px solid rgba(255,255,255,.14); border-radius:16px; background:rgba(255,255,255,.07); box-shadow:0 20px 50px rgba(0,0,0,.12); }
+    .chart-card h2 { margin:0; font-size:13px; }
+    .chart-card p { margin:5px 0 12px; color:#aebbd3; font-size:9px; }
+    .chart-card svg { width:100%; height:auto; display:block; }
+    .chart-legend { display:flex; justify-content:space-between; color:#b5c0d5; font-size:9px; }
+    .layout { max-width:1500px; margin:0 auto; padding:28px 28px 70px; display:grid; grid-template-columns:220px minmax(0,1fr); gap:24px; }
+    .side-nav { position:sticky; top:88px; align-self:start; padding:14px; border:1px solid var(--line); border-radius:12px; background:#fff; box-shadow:var(--shadow); }
+    .side-nav p { margin:2px 9px 10px; color:#9aa4b5; font-size:9px; font-weight:700; letter-spacing:.12em; }
+    .side-nav a { display:block; padding:10px 11px; border-radius:7px; color:#6f7b90; font-size:11px; transition:.2s; }
+    .side-nav a:hover,.side-nav a.active { color:#2f60d5; background:#eef3ff; }
+    main { min-width:0; display:grid; gap:16px; }
+    .section { padding:28px 30px; border:1px solid var(--line); border-radius:13px; background:#fff; box-shadow:var(--shadow); scroll-margin-top:84px; }
+    .section-head { display:flex; align-items:flex-start; gap:13px; margin-bottom:18px; }
+    .section-no { width:29px; height:29px; display:grid; place-items:center; flex:none; border-radius:8px; color:#3566d6; background:#edf3ff; font-size:10px; font-weight:800; }
+    .section h2 { margin:1px 0 6px; font-size:20px; }
+    .section-sub { margin:0; color:#8792a5; font-size:11px; line-height:1.65; }
+    .section h3 { margin:24px 0 10px; font-size:13px; }
+    .section p,.section li { color:#606d83; font-size:11px; line-height:1.85; }
+    .section ul,.section ol { padding-left:20px; }
+    .lead { padding:16px 18px; border-left:4px solid var(--blue); border-radius:9px; background:var(--blue-soft); }
+    .lead strong { display:block; margin-bottom:6px; color:#2f5ec6; font-size:12px; }
+    .lead p { margin:0; color:#53637f; }
+    .callout { padding:14px 16px; margin-top:15px; border-radius:9px; }
+    .callout.amber { border-left:3px solid var(--orange); background:var(--orange-soft); }
+    .callout.green { border-left:3px solid var(--green); background:var(--green-soft); }
+    .callout strong { display:block; margin-bottom:4px; font-size:11px; }
+    .callout p { margin:0; }
+    .card-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:11px; }
+    .mini-card { padding:16px; border:1px solid var(--line); border-radius:10px; background:#fbfcfe; }
+    .mini-card b { display:block; margin-bottom:7px; color:#35445f; font-size:11px; }
+    .mini-card p { margin:0; font-size:10px; }
+    .mini-icon { width:28px; height:28px; display:grid; place-items:center; margin-bottom:11px; border-radius:8px; color:#fff; background:var(--blue); font-size:11px; font-weight:800; }
+    .formula-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:13px 0; }
+    .formula { min-width:0; padding:16px; border:1px solid #dfe6f3; border-radius:10px; background:#f8faff; }
+    .formula span,.formula small { display:block; }
+    .formula span { color:#71809a; font-size:9px; font-weight:700; }
+    .formula strong { display:block; margin:11px 0 8px; overflow-wrap:anywhere; color:#253a69; font-family:Georgia,"Times New Roman",serif; font-size:17px; line-height:1.55; }
+    .formula small { color:#8a96aa; font-size:9px; line-height:1.65; }
+    .formula.dark { border-color:#1c2948; color:#fff; background:#17213a; }
+    .formula.dark span,.formula.dark small { color:#9dabc7; }
+    .formula.dark strong { color:#fff; }
+    .flow { display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:9px; align-items:center; margin:16px 0; }
+    .flow div { padding:14px; min-height:80px; border:1px solid var(--line); border-radius:10px; background:#fbfcfe; }
+    .flow b,.flow small { display:block; }
+    .flow b { margin-bottom:6px; font-size:11px; }
+    .flow small { color:#7d899c; font-size:9px; line-height:1.6; }
+    .flow i { color:#9aa7bb; font-style:normal; }
+    table { width:100%; border-collapse:collapse; margin:12px 0; }
+    th,td { padding:11px 12px; border-bottom:1px solid #e9edf3; text-align:left; vertical-align:top; font-size:10px; line-height:1.65; }
+    th { color:#738097; background:#f7f9fc; font-weight:700; }
+    td { color:#58667d; }
+    .status { display:inline-flex; padding:4px 7px; border-radius:12px; font-size:9px; font-weight:700; }
+    .status.red { color:#b84e42; background:#fff0ed; }
+    .status.green { color:#147454; background:#eaf8f3; }
+    .status.gray { color:#69758a; background:#eef1f5; }
+    .code { padding:17px 19px; overflow-x:auto; border-radius:10px; color:#dce5f7; background:#131d34; font:10px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace; white-space:pre; }
+    .tabs { display:flex; gap:8px; margin-bottom:13px; }
+    .tabs button { padding:8px 12px; border:1px solid #dfe5ef; border-radius:7px; color:#6f7b8f; background:#fff; cursor:pointer; font-size:10px; }
+    .tabs button.active { border-color:#6e8ee3; color:#315fcd; background:#edf3ff; font-weight:700; }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+    .final-rule { padding:22px; border-radius:12px; color:#fff; background:linear-gradient(135deg,#315fce,#644fc1); }
+    .final-rule h3 { margin:0 0 12px; color:#fff; font-size:15px; }
+    .final-rule pre { margin:0; color:#eef3ff; font:11px/1.9 ui-monospace,SFMono-Regular,Menlo,monospace; white-space:pre-wrap; }
+    .checklist { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+    .checklist div { padding:12px 14px; border:1px solid var(--line); border-radius:9px; color:#617087; font-size:10px; line-height:1.6; }
+    .checklist div::before { content:"✓"; display:inline-grid; width:18px; height:18px; place-items:center; margin-right:8px; border-radius:50%; color:#fff; background:var(--green); font-size:9px; font-weight:800; }
+    footer { padding:25px; color:#8b96a9; text-align:center; font-size:9px; }
+    @media (max-width:1000px) {
+      .hero-grid { grid-template-columns:1fr; }
+      .layout { grid-template-columns:1fr; }
+      .side-nav { position:static; display:flex; gap:4px; overflow-x:auto; }
+      .side-nav p { display:none; }
+      .side-nav a { white-space:nowrap; }
+      .card-grid { grid-template-columns:1fr; }
+    }
+    @media (max-width:700px) {
+      .topbar,.hero { padding-left:18px; padding-right:18px; }
+      .hero { padding-top:36px; }
+      .hero h1 { font-size:32px; }
+      .layout { padding:18px 14px 50px; }
+      .section { padding:22px 18px; }
+      .formula-grid,.checklist { grid-template-columns:1fr; }
+      .flow { grid-template-columns:1fr; }
+      .flow i { text-align:center; transform:rotate(90deg); }
+      .top-tag { display:none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top"><span class="brand-mark">P</span><span><strong>答题时长规则方案</strong><small>Percentile × Right-skew Distribution</small></span></a>
+    <span class="top-tag">业务规则说明 · V1.0</span>
+  </header>
+
+  <section class="hero" id="top">
+    <div class="hero-grid">
+      <div>
+        <p class="eyebrow">DURATION QUALITY CONTROL</p>
+        <h1>“采用百分位对应右偏分布”是什么意思？</h1>
+        <p class="hero-copy">答题时长通常是<strong>大量短时长 + 少量超长时长</strong>形成的右偏长尾数据。业务要求的本质，是停止把原始时长强行当成正态分布，改为根据同组真实样本的排名百分位确定异常阈值。</p>
+        <div class="hero-pills"><span>经验百分位优先</span><span>题目级 P95</span><span>答卷级 P05</span><span>小样本回退</span><span>规则版本化</span></div>
+      </div>
+      <div class="chart-card">
+        <h2>典型答题时长分布</h2>
+        <p>大多数记录集中在左侧，少量极端值形成长右尾</p>
+        <svg viewBox="0 0 520 230" role="img" aria-label="右偏分布与P05、P95阈值示意">
+          <defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8aa5f0" stop-opacity=".55"/><stop offset="1" stop-color="#8aa5f0" stop-opacity=".04"/></linearGradient></defs>
+          <line x1="20" y1="190" x2="505" y2="190" stroke="#7f8ba2" stroke-opacity=".6"/>
+          <path d="M22 190 C38 188 49 171 61 113 C75 48 103 24 135 48 C174 77 175 125 214 149 C256 175 306 178 360 184 C416 188 463 189 503 190 L503 190 L22 190Z" fill="url(#area)"/>
+          <path d="M22 190 C38 188 49 171 61 113 C75 48 103 24 135 48 C174 77 175 125 214 149 C256 175 306 178 360 184 C416 188 463 189 503 190" fill="none" stroke="#91adf7" stroke-width="4"/>
+          <line x1="57" y1="53" x2="57" y2="195" stroke="#e5a26c" stroke-width="2" stroke-dasharray="6 5"/>
+          <line x1="348" y1="53" x2="348" y2="195" stroke="#e06f5d" stroke-width="2" stroke-dasharray="6 5"/>
+          <text x="39" y="43" fill="#ffc48f" font-size="12">P05</text><text x="330" y="43" fill="#ff9a89" font-size="12">P95</text>
+          <text x="20" y="216" fill="#aebbd3" font-size="10">短</text><text x="468" y="216" fill="#aebbd3" font-size="10">时长</text>
+        </svg>
+        <div class="chart-legend"><span>← 最快 5%：重点审核</span><span>最慢 5%：超长处理 →</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="layout">
+    <nav class="side-nav" aria-label="文档目录">
+      <p>CONTENTS</p>
+      <a class="active" href="#meaning">业务含义</a>
+      <a href="#failure">原规则问题</a>
+      <a href="#method">百分位方法</a>
+      <a href="#question-rule">题目级规则</a>
+      <a href="#answer-rule">答卷级规则</a>
+      <a href="#fallback">分组与回退</a>
+      <a href="#implementation">系统落地</a>
+      <a href="#acceptance">上线验收</a>
+    </nav>
+
+    <main>
+      <section class="section" id="meaning">
+        <div class="section-head"><span class="section-no">01</span><div><h2>业务要求的准确含义</h2><p class="section-sub">百分位是位置，右偏是数据形态；两者结合用于获得更可靠的异常阈值。</p></div></div>
+        <div class="lead"><strong>一句话解释</strong><p>在同类样本中按实际答题时长排序，用第 5、第 95 百分位作为过快和过慢的边界，而不是使用对称的“平均值 ± 标准差”判断。</p></div>
+        <div class="card-grid" style="margin-top:14px">
+          <div class="mini-card"><span class="mini-icon">偏</span><b>右偏分布</b><p>大量样本集中在较短区间，少量超长记录把右侧尾部拖得很长。</p></div>
+          <div class="mini-card"><span class="mini-icon">P</span><b>百分位</b><p>P05 表示约 5% 的记录更短；P95 表示约 95% 的记录不超过该时长。</p></div>
+          <div class="mini-card"><span class="mini-icon">✓</span><b>业务结果</b><p>过快答卷进入人工审核；超长题目按截尾或已确认的补偿规则处理。</p></div>
+        </div>
+      </section>
+
+      <section class="section" id="failure">
+        <div class="section-head"><span class="section-no">02</span><div><h2>为什么原正态规则容易失效</h2><p class="section-sub">原始答题时长不是左右对称数据，均值和标准差会被极端值显著影响。</p></div></div>
+        <div class="formula-grid">
+          <div class="formula dark"><span>原规则</span><strong>Z = (x − μ) / σ<br/>P = Φ(Z)</strong><small>隐含前提：原始时长近似服从正态分布。</small></div>
+          <div class="formula"><span>问题</span><strong>右尾极端值 ↑ → μ、σ 同时被拉高</strong><small>正常范围被放大，过快或过慢记录仍可能被判为正常。</small></div>
+        </div>
+        <h3>“全部显示正常”的重点排查项</h3>
+        <table>
+          <thead><tr><th>问题</th><th>典型表现</th><th>修正方式</th></tr></thead>
+          <tbody>
+            <tr><td>P 值单位不一致</td><td>接口返回 0.05，页面按 5 比较</td><td>全链路统一使用 0～1，展示时再乘 100%</td></tr>
+            <tr><td>时长单位不一致</td><td>实际值为秒，阈值为分钟</td><td>计算层统一存秒，展示层负责换算</td></tr>
+            <tr><td>比较方向错误</td><td>P05、P95 均未命中</td><td>答卷过快用 ≤P05，题目超长用 ≥P95</td></tr>
+            <tr><td>阈值分组不一致</td><td>阈值存在但匹配不到</td><td>计算和审核共用同一个 group_key</td></tr>
+            <tr><td>失败默认正常</td><td>无阈值或样本不足仍显示正常</td><td>改为“待观察”，禁止静默降级为正常</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section" id="method">
+        <div class="section-head"><span class="section-no">03</span><div><h2>推荐方法：经验百分位</h2><p class="section-sub">直接使用真实样本排序，不要求原始数据符合任何特定分布。</p></div></div>
+        <div class="formula-grid">
+          <div class="formula"><span>经验累计分位</span><strong>Pᵢ = F̂(xᵢ) = (1/n) · ∑ 𝟙(xⱼ ≤ xᵢ)</strong><small>𝟙(条件)成立取 1，否则取 0。</small></div>
+          <div class="formula"><span>分位阈值</span><strong>T<sub>low</sub> = Q<sub>0.05</sub>(X)<br/>T<sub>high</sub> = Q<sub>0.95</sub>(X)</strong><small>Qₚ 表示样本排序后的第 p 百分位。</small></div>
+        </div>
+        <div class="tabs" role="tablist">
+          <button class="active" data-tab="empirical">经验百分位（推荐）</button>
+          <button data-tab="lognormal">对数正态拟合（备选）</button>
+        </div>
+        <div class="tab-panel active" data-panel="empirical">
+          <div class="callout green"><strong>推荐原因</strong><p>能够忠实反映右偏、长尾和多峰数据，不需要先验证正态性；规则结果也容易向业务解释。</p></div>
+        </div>
+        <div class="tab-panel" data-panel="lognormal">
+          <div class="formula-grid">
+            <div class="formula"><span>对数变换</span><strong>uᵢ = ln(1 + xᵢ)<br/>Zᵢ = (uᵢ − μ<sub>log</sub>) / σ<sub>log</sub></strong><small>对数空间更接近对称分布。</small></div>
+            <div class="formula"><span>原始尺度阈值</span><strong>Tₚ = exp[μ<sub>log</sub> + σ<sub>log</sub>Φ⁻¹(p)] − 1</strong><small>仅在业务必须使用平滑概率曲线时采用。</small></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="question-rule">
+        <div class="section-head"><span class="section-no">04</span><div><h2>题目级规则：处理异常超长单题</h2><p class="section-sub">避免离开页面、切到后台等行为把整份答卷时长异常拉长。</p></div></div>
+        <p>建议分组：<strong>车型 × 问卷版本 × 题目编号</strong>；渠道差异明显时再加入渠道。不同题型不能混合计算。</p>
+        <div class="formula-grid">
+          <div class="formula"><span>题目上限</span><strong>T<sub>题,95</sub> = Q<sub>0.95</sub>({x₁,…,xₙ})</strong><small>xᵢ 为单次题目实际作答时长。</small></div>
+          <div class="formula"><span>异常条件</span><strong>xᵢ &gt; T<sub>题,95</sub><br/>或 P<sub>题,i</sub> ≥ 95%</strong><small>阈值应支持后台配置。</small></div>
+        </div>
+        <h3>异常题目时长的处理选择</h3>
+        <table>
+          <thead><tr><th>方案</th><th>公式</th><th>评价</th></tr></thead>
+          <tbody>
+            <tr><td>原业务补偿</td><td>xᵢ* = μ题 / 3</td><td>便于历史兼容，但可能明显低估答卷时长</td></tr>
+            <tr><td>直接删除</td><td>异常记录不计入</td><td>信息损失较大，不推荐</td></tr>
+            <tr><td><strong>P95 截尾</strong></td><td>xᵢ* = min(xᵢ,T题,95)</td><td><strong>推荐，稳定且容易解释</strong></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section" id="answer-rule">
+        <div class="section-head"><span class="section-no">05</span><div><h2>答卷级规则：识别答题过快</h2><p class="section-sub">基于完成异常处理后的题目时长，得到每份答卷的推定有效时长。</p></div></div>
+        <div class="flow">
+          <div><b>题目时长处理</b><small>超过 P95 的单题进行截尾或业务补偿。</small></div><i>→</i>
+          <div><b>汇总答卷时长</b><small>yₖ = Σxₖ,i*，统一使用秒。</small></div><i>→</i>
+          <div><b>答卷分位判断</b><small>低于同组 P05 则进入人工审核。</small></div>
+        </div>
+        <div class="formula-grid">
+          <div class="formula"><span>推定答卷时长</span><strong>yₖ = ∑<sub>i=1</sub><sup>mₖ</sup> xₖ,i*</strong><small>若页面展示分钟，则在展示层除以 60。</small></div>
+          <div class="formula"><span>答卷下限</span><strong>T<sub>卷,05</sub> = Q<sub>0.05</sub>({y₁,…,yₙ})</strong><small>默认取同组最快的 5% 作为审核边界。</small></div>
+        </div>
+        <table>
+          <thead><tr><th>状态</th><th>判断条件</th><th>页面处理</th></tr></thead>
+          <tbody>
+            <tr><td><span class="status red">过快</span></td><td>P卷 ≤ 5% 或 yₖ ≤ Q05</td><td>红色高亮，进入人工审核</td></tr>
+            <tr><td><span class="status green">正常</span></td><td>5% &lt; P卷 &lt; 95%</td><td>保留正常状态</td></tr>
+            <tr><td><span class="status red">过慢</span></td><td>P卷 ≥ 95%</td><td>橙色提示，可配置是否审核</td></tr>
+            <tr><td><span class="status gray">待观察</span></td><td>样本不足、阈值缺失或计算失败</td><td>不得默认显示正常</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section" id="fallback">
+        <div class="section-head"><span class="section-no">06</span><div><h2>分组策略与小样本回退</h2><p class="section-sub">分组越细越精准，但样本不足时百分位会不稳定，必须配置回退链路。</p></div></div>
+        <div class="flow">
+          <div><b>一级</b><small>车型 × 问卷版本 × 题目/答卷</small></div><i>→</i>
+          <div><b>二级</b><small>车系 × 问卷版本 × 题目/答卷</small></div><i>→</i>
+          <div><b>三级</b><small>问卷类型 × 近 90 天基线</small></div>
+        </div>
+        <table>
+          <thead><tr><th>有效样本量</th><th>处理方式</th></tr></thead>
+          <tbody><tr><td>n ≥ 200</td><td>使用当前细分组的百分位阈值</td></tr><tr><td>50 ≤ n &lt; 200</td><td>回退上一级，或与上级阈值进行加权收缩</td></tr><tr><td>n &lt; 50</td><td>显示“待观察”，不自动判异常</td></tr></tbody>
+        </table>
+        <div class="formula"><span>小样本加权阈值</span><strong>T最终 = w·T当前组 + (1−w)·T上级组，w = n/(n+k)</strong><small>k 可配置为 100～200，控制小样本向上级基线收缩的程度。</small></div>
+      </section>
+
+      <section class="section" id="implementation">
+        <div class="section-head"><span class="section-no">07</span><div><h2>系统落地方案</h2><p class="section-sub">阈值计算、实时判定、接口字段和规则版本需要形成完整闭环。</p></div></div>
+        <h3>数据处理链路</h3>
+        <div class="flow">
+          <div><b>清洗</b><small>剔除预览、未提交、负值、缺失时间和系统异常。</small></div><i>→</i>
+          <div><b>计算</b><small>按 group_key 计算 P05、P95、样本量和窗口。</small></div><i>→</i>
+          <div><b>审核</b><small>返回状态、分位、阈值、原因和规则版本。</small></div>
+        </div>
+        <h3>接口建议</h3>
+        <div class="code">{
+  "duration_status": "too_fast",
+  "duration_seconds": 86.2,
+  "percentile": 0.031,
+  "threshold_low": 94.8,
+  "threshold_high": 623.5,
+  "sample_count": 2864,
+  "group_key": "N7_questionnaire_v3",
+  "rule_version": "duration_percentile_v2",
+  "reason": "答卷时长低于同组第5百分位"
+}</div>
+        <h3>百分位的增量更新</h3>
+        <div class="callout amber"><strong>重要限制</strong><p>只保存 n、均值 μ 和标准差 σ，无法准确恢复 P05、P95。原来的均值/标准差补偿公式不能替代百分位更新。</p></div>
+        <table>
+          <thead><tr><th>数据规模</th><th>建议方式</th></tr></thead>
+          <tbody><tr><td>中小规模</td><td>每天或每小时按分组排序，精确重算百分位</td></tr><tr><td>大规模</td><td>使用 t-digest、KLL Sketch 或数据仓库 approx_percentile</td></tr><tr><td>需要审计</td><td>保存阈值、样本量、窗口、分组键、算法和规则版本</td></tr></tbody>
+        </table>
+      </section>
+
+      <section class="section" id="acceptance">
+        <div class="section-head"><span class="section-no">08</span><div><h2>上线步骤与验收标准</h2><p class="section-sub">通过历史回放验证规则效果，再逐步切换人工审核主规则。</p></div></div>
+        <div class="checklist">
+          <div>回放最近 30～90 天数据，比较新旧规则命中差异。</div>
+          <div>确认 P05 在各分组中覆盖约 5% 的有效历史样本。</div>
+          <div>检查秒/分钟及 0.05/5% 的转换是否统一。</div>
+          <div>对比人工审核命中率、误报率和异常覆盖率。</div>
+          <div>验证问卷版本变更后不会复用旧版本阈值。</div>
+          <div>确认阈值缺失时显示“待观察”而不是“正常”。</div>
+          <div>保存 rule_version，支持历史结果重放和审计。</div>
+          <div>监控各分组异常率，避免小样本造成突变。</div>
+        </div>
+        <div class="final-rule" style="margin-top:18px">
+          <h3>推荐最终规则</h3>
+          <pre>题目级：超过同组经验 P95 → 按 P95 截尾，或按已确认的补偿规则处理
+
+答卷级：低于或等于同组经验 P05 → 标记“答题过快”，进入人工审核
+
+兜底：样本不足、阈值缺失或计算失败 → 标记“待观察”，禁止默认返回“正常”</pre>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>答题时长百分位规则解决方案 · 适用于右偏长尾作答数据</footer>
+  <script>
+    const tabButtons = document.querySelectorAll('[data-tab]');
+    tabButtons.forEach(function(button) {
+      button.addEventListener('click', function() {
+        tabButtons.forEach(function(item) { item.classList.toggle('active', item === button); });
+        document.querySelectorAll('[data-panel]').forEach(function(panel) {
+          panel.classList.toggle('active', panel.dataset.panel === button.dataset.tab);
+        });
+      });
+    });
+
+    const navLinks = document.querySelectorAll('.side-nav a');
+    const sections = document.querySelectorAll('main .section');
+    const observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting) return;
+        navLinks.forEach(function(link) {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+        });
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(function(section) { observer.observe(section); });
+  </script>
+</body>
+</html>
