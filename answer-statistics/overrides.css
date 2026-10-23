@@ -562,3 +562,77 @@
   line-height: 1.7;
   font-weight: 500;
 }
+
+
+/* Product document primary tabs */
+.doc-primary-tabs {
+  padding: 0 28px 16px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  border-bottom: 1px solid #e8ecf3;
+}
+
+.doc-primary-tabs button {
+  min-height: 58px;
+  padding: 11px 13px;
+  border: 1px solid #e3e8f0;
+  border-radius: 9px;
+  background: #f8fafc;
+  color: #66738a;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+}
+
+.doc-primary-tabs button:hover {
+  border-color: #cbd7f2;
+  background: #f5f8ff;
+}
+
+.doc-primary-tabs button.active {
+  border-color: #7192e8;
+  background: #eef3ff;
+  color: #2f60d5;
+  box-shadow: 0 5px 14px rgba(63, 111, 229, .1);
+}
+
+.doc-primary-tabs span,
+.doc-primary-tabs small {
+  display: block;
+}
+
+.doc-primary-tabs span {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.doc-primary-tabs small {
+  margin-top: 5px;
+  color: #8a95a8;
+  font-size: 8px;
+}
+
+.doc-primary-tabs button.active small {
+  color: #7184ad;
+}
+
+.doc-tab-panel {
+  min-height: 0;
+  flex: 1;
+  display: none;
+  flex-direction: column;
+}
+
+.doc-tab-panel.active {
+  display: flex;
+}
+
+.doc-tab-panel .drawer-content {
+  min-height: 0;
+  flex: 1;
+}
+
+.doc-tab-panel .drawer-nav {
+  flex: none;
+}
