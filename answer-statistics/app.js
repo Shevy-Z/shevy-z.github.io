@@ -67,21 +67,39 @@ renderRows();
 
 const drawer = document.querySelector('#docDrawer');
 const backdrop = document.querySelector('#drawerBackdrop');
-function openDrawer(section = 'overview') {
+const docTabButtons = [...document.querySelectorAll('[data-doc-tab]')];
+const docPanels = [...document.querySelectorAll('[data-doc-panel]')];
+
+function activateDocTab(tab) {
+  docTabButtons.forEach(button => {
+    const active = button.dataset.docTab === tab;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-selected', String(active));
+  });
+  docPanels.forEach(panel => panel.classList.toggle('active', panel.dataset.docPanel === tab));
+}
+
+function openDrawer(section = 'page-overview', tab = section.startsWith('page-') ? 'page' : 'rules') {
+  activateDocTab(tab);
+  const targetPanel = document.querySelector(`[data-doc-panel="${tab}"]`);
+  targetPanel.querySelectorAll('.drawer-nav button').forEach(button => button.classList.toggle('active', button.dataset.section === section));
   drawer.classList.add('open'); backdrop.classList.add('open'); drawer.setAttribute('aria-hidden','false');
-  document.querySelectorAll('.drawer-nav button').forEach(button => button.classList.toggle('active', button.dataset.section === section));
   setTimeout(() => document.querySelector(`#${section}`).scrollIntoView({behavior:'smooth', block:'start'}), 180);
   document.body.style.overflow = 'hidden';
 }
 function closeDrawer() { drawer.classList.remove('open'); backdrop.classList.remove('open'); drawer.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
-document.querySelector('#docButton').addEventListener('click', () => openDrawer('overview'));
-document.querySelector('#ruleButton').addEventListener('click', () => openDrawer('rule'));
-document.querySelector('#detailRuleButton').addEventListener('click', () => openDrawer('rule'));
+
+document.querySelector('#docButton').addEventListener('click', () => openDrawer('page-overview', 'page'));
+document.querySelector('#ruleButton').addEventListener('click', () => openDrawer('rule', 'rules'));
+document.querySelector('#detailRuleButton').addEventListener('click', () => openDrawer('rule', 'rules'));
 document.querySelector('#closeDrawer').addEventListener('click', closeDrawer);
 backdrop.addEventListener('click', closeDrawer);
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDrawer(); });
+
+docTabButtons.forEach(button => button.addEventListener('click', () => activateDocTab(button.dataset.docTab)));
 document.querySelectorAll('.drawer-nav button').forEach(button => button.addEventListener('click', () => {
-  document.querySelector('.drawer-nav button.active').classList.remove('active'); button.classList.add('active');
+  const nav = button.closest('.drawer-nav');
+  nav.querySelectorAll('button').forEach(item => item.classList.toggle('active', item === button));
   document.querySelector(`#${button.dataset.section}`).scrollIntoView({behavior:'smooth', block:'start'});
 }));
 
