@@ -91,7 +91,6 @@ function closeDrawer() { drawer.classList.remove('open'); backdrop.classList.rem
 
 document.querySelector('#docButton').addEventListener('click', () => openDrawer('page-overview', 'page'));
 document.querySelector('#ruleButton').addEventListener('click', () => openDrawer('rule', 'rules'));
-document.querySelector('#detailRuleButton').addEventListener('click', () => openDrawer('rule', 'rules'));
 document.querySelector('#closeDrawer').addEventListener('click', closeDrawer);
 backdrop.addEventListener('click', closeDrawer);
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDrawer(); });
