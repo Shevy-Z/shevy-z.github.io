@@ -133,7 +133,7 @@
 <body>
   <header class="topbar">
     <a class="brand" href="#top"><span class="brand-mark">P</span><span><strong>答题时长规则方案</strong><small>Percentile × Right-skew Distribution</small></span></a>
-    <span class="top-tag">业务规则说明 · V1.0</span>
+    <span class="top-tag">业务规则说明 · V1.1</span>
   </header>
 
   <section class="hero" id="top">
@@ -171,6 +171,7 @@
       <a href="#question-rule">题目级规则</a>
       <a href="#answer-rule">答卷级规则</a>
       <a href="#fallback">分组与回退</a>
+      <a href="#cold-start">冷启动防自锁</a>
       <a href="#implementation">系统落地</a>
       <a href="#acceptance">上线验收</a>
     </nav>
@@ -200,7 +201,7 @@
             <tr><td>时长单位不一致</td><td>实际值为秒，阈值为分钟</td><td>计算层统一存秒，展示层负责换算</td></tr>
             <tr><td>比较方向错误</td><td>P05、P95 均未命中</td><td>答卷过快用 ≤P05，题目超长用 ≥P95</td></tr>
             <tr><td>阈值分组不一致</td><td>阈值存在但匹配不到</td><td>计算和审核共用同一个 group_key</td></tr>
-            <tr><td>失败默认正常</td><td>无阈值或样本不足仍显示正常</td><td>改为“待观察”，禁止静默降级为正常</td></tr>
+            <tr><td>失败默认正常</td><td>无阈值或样本不足仍显示正常</td><td>改为“待定”，禁止静默降级为正常</td></tr>
           </tbody>
         </table>
       </section>
@@ -261,7 +262,7 @@
             <tr><td><span class="status red">过快</span></td><td>P卷 ≤ 5% 或 yₖ ≤ Q05</td><td>红色高亮，进入人工审核</td></tr>
             <tr><td><span class="status green">正常</span></td><td>5% &lt; P卷 &lt; 95%</td><td>保留正常状态</td></tr>
             <tr><td><span class="status red">过慢</span></td><td>P卷 ≥ 95%</td><td>橙色提示，可配置是否审核</td></tr>
-            <tr><td><span class="status gray">待观察</span></td><td>样本不足、阈值缺失或计算失败</td><td>不得默认显示正常</td></tr>
+            <tr><td><span class="status gray">待定</span></td><td>样本不足、阈值缺失或计算失败</td><td>不得默认显示正常</td></tr>
           </tbody>
         </table>
       </section>
@@ -275,13 +276,83 @@
         </div>
         <table>
           <thead><tr><th>有效样本量</th><th>处理方式</th></tr></thead>
-          <tbody><tr><td>n ≥ 200</td><td>使用当前细分组的百分位阈值</td></tr><tr><td>50 ≤ n &lt; 200</td><td>回退上一级，或与上级阈值进行加权收缩</td></tr><tr><td>n &lt; 50</td><td>显示“待观察”，不自动判异常</td></tr></tbody>
+          <tbody><tr><td>n ≥ 200</td><td>使用当前细分组的百分位阈值</td></tr><tr><td>50 ≤ n &lt; 200</td><td>回退上一级，或与上级阈值进行加权收缩</td></tr><tr><td>n &lt; 50</td><td>显示“待定”，不自动判异常</td></tr></tbody>
         </table>
         <div class="formula"><span>小样本加权阈值</span><strong>T最终 = w·T当前组 + (1−w)·T上级组，w = n/(n+k)</strong><small>k 可配置为 100～200，控制小样本向上级基线收缩的程度。</small></div>
       </section>
 
+      <section class="section" id="cold-start">
+        <div class="section-head"><span class="section-no">07</span><div><h2>冷启动与数学自锁防护</h2><p class="section-sub">没有历史样本时，n、μ、σ 和百分位阈值均不存在，必须先建立基线，不能直接执行 μ/3 补偿。</p></div></div>
+        <div class="lead"><strong>风险结论</strong><p>如果系统在 n=0 时把 μ 初始化为 0，并将异常记录替换为 μ/3，那么补偿结果会持续为 0；若这些补偿值又被写回统计样本池，新的 μ 仍为 0，形成无法自行恢复的数学自锁。</p></div>
+
+        <div class="formula-grid">
+          <div class="formula dark"><span>错误的自锁链路</span><strong>n₀ = 0 → μ₀ = 0<br/>x* = μ₀/3 = 0<br/>μ₁ = mean({0}) = 0</strong><small>后续记录继续被替换为 0，基线永远无法形成。</small></div>
+          <div class="formula"><span>正确的冷启动原则</span><strong>基线未就绪 → x* = x<br/>只采集原始值，不自动判异常</strong><small>μ/3 只能是基线成熟后的业务补偿结果，不能用于生成基线。</small></div>
+        </div>
+
+        <h3>必须隔离两套数据</h3>
+        <div class="flow">
+          <div><b>原始基线池</b><small>保存清洗后的 raw_duration，用于计算 P05、P95、μ、σ；永远不写入 μ/3 等补偿值。</small></div><i>→</i>
+          <div><b>规则判定层</b><small>读取已发布阈值，对当前记录生成正常、异常或待定状态。</small></div><i>→</i>
+          <div><b>有效结果池</b><small>保存 effective_duration，仅用于报表和答卷时长汇总，不反向污染基线。</small></div>
+        </div>
+        <div class="callout amber"><strong>关键约束</strong><p>阈值只能由原始基线池计算。补偿时长、截尾时长和人工修正值不得参与下一轮百分位与均值计算，否则会产生反馈偏差甚至再次自锁。</p></div>
+
+        <h3>冷启动状态机</h3>
+        <table>
+          <thead><tr><th>阶段</th><th>样本量</th><th>阈值来源</th><th>判定策略</th></tr></thead>
+          <tbody>
+            <tr><td><strong>C0 未初始化</strong></td><td>n = 0</td><td>上级先验或业务默认值</td><td>没有任何先验时只采集，统一显示“待定”，不执行 μ/3</td></tr>
+            <tr><td><strong>C1 采集期</strong></td><td>1 ≤ n &lt; 50</td><td>上级分组/同类题型先验</td><td>可以提示风险，但不自动拦截或替换；原始值持续进入基线池</td></tr>
+            <tr><td><strong>C2 预热期</strong></td><td>50 ≤ n &lt; 200</td><td>当前样本与先验加权</td><td>生成临时阈值，异常进入人工审核，不直接作为最终质量结论</td></tr>
+            <tr><td><strong>C3 稳定期</strong></td><td>n ≥ 200</td><td>当前同质分组经验百分位</td><td>正式启用 P05/P95 自动规则，并记录规则版本</td></tr>
+          </tbody>
+        </table>
+
+        <h3>初始值的获取顺序</h3>
+        <ol>
+          <li>同问卷版本、同题目、相近车型的历史分布。</li>
+          <li>上一级分组，例如车系、品牌或同问卷类型的近 90 天基线。</li>
+          <li>同类题型先验，例如单选、多选、矩阵题分别配置默认 P05/P95。</li>
+          <li>上线前试跑、测试样本或灰度流量形成的种子基线。</li>
+          <li>上述数据全部不存在时进入纯采集模式，不自动生成统计异常。</li>
+        </ol>
+
+        <div class="formula-grid">
+          <div class="formula"><span>均值先验收缩</span><strong>μ̃ = (n·μ样本 + k·μ先验) / (n+k)</strong><small>n=0 时 μ̃=μ先验，不会得到无意义的 0；k 为先验强度。</small></div>
+          <div class="formula"><span>分位阈值加权</span><strong>T̃ₚ = w·Qₚ(样本) + (1−w)·Qₚ(先验)<br/>w = n/(n+k)</strong><small>样本增加后，阈值自动从先验平滑过渡到当前分组。</small></div>
+        </div>
+
+        <h3>基线未就绪时的有效时长</h3>
+        <div class="formula"><span>防自锁处理</span><strong>xᵢ* = { xᵢ，baseline_ready = false； min(xᵢ,T题,95)，baseline_ready = true }</strong><small>未就绪时保留清洗后的真实值；就绪后推荐使用 P95 截尾。若必须兼容 μ/3，只有在 baseline_ready=true 且 μ&gt;0 时才允许执行。</small></div>
+        <p>冷启动期间仍可配置与数据无关的硬性安全边界，例如负值、0 秒、超过会话超时的记录直接判为系统无效；这些边界不得冒充统计百分位。</p>
+
+        <h3>接口与数据字段</h3>
+        <table>
+          <thead><tr><th>字段</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>baseline_status</td><td>uninitialized / collecting / warming / ready</td></tr>
+            <tr><td>baseline_source</td><td>current_group / parent_group / question_type / configured_default / none</td></tr>
+            <tr><td>raw_duration</td><td>清洗后的真实时长，只进入原始基线池</td></tr>
+            <tr><td>effective_duration</td><td>规则处理后的报表时长，不参与阈值训练</td></tr>
+            <tr><td>sample_count</td><td>当前分组有效原始样本数</td></tr>
+            <tr><td>decision_status</td><td>normal / abnormal / pending；基线未就绪时必须为 pending</td></tr>
+          </tbody>
+        </table>
+
+        <h3>冷启动专项验收</h3>
+        <div class="checklist">
+          <div>n=0 时不产生 μ/3=0 的补偿记录。</div>
+          <div>第一条合法非零时长能够进入原始基线池。</div>
+          <div>补偿值不会反向参与 μ、σ、P05、P95 计算。</div>
+          <div>σ=0 或所有样本相同时显示“待定”，不默认正常。</div>
+          <div>上级先验缺失时自动进入只采集模式。</div>
+          <div>达到样本门槛后按版本切换为正式百分位规则。</div>
+        </div>
+      </section>
+
       <section class="section" id="implementation">
-        <div class="section-head"><span class="section-no">07</span><div><h2>系统落地方案</h2><p class="section-sub">阈值计算、实时判定、接口字段和规则版本需要形成完整闭环。</p></div></div>
+        <div class="section-head"><span class="section-no">08</span><div><h2>系统落地方案</h2><p class="section-sub">阈值计算、实时判定、接口字段和规则版本需要形成完整闭环。</p></div></div>
         <h3>数据处理链路</h3>
         <div class="flow">
           <div><b>清洗</b><small>剔除预览、未提交、负值、缺失时间和系统异常。</small></div><i>→</i>
@@ -309,24 +380,26 @@
       </section>
 
       <section class="section" id="acceptance">
-        <div class="section-head"><span class="section-no">08</span><div><h2>上线步骤与验收标准</h2><p class="section-sub">通过历史回放验证规则效果，再逐步切换人工审核主规则。</p></div></div>
+        <div class="section-head"><span class="section-no">09</span><div><h2>上线步骤与验收标准</h2><p class="section-sub">通过历史回放验证规则效果，再逐步切换人工审核主规则。</p></div></div>
         <div class="checklist">
           <div>回放最近 30～90 天数据，比较新旧规则命中差异。</div>
           <div>确认 P05 在各分组中覆盖约 5% 的有效历史样本。</div>
           <div>检查秒/分钟及 0.05/5% 的转换是否统一。</div>
           <div>对比人工审核命中率、误报率和异常覆盖率。</div>
           <div>验证问卷版本变更后不会复用旧版本阈值。</div>
-          <div>确认阈值缺失时显示“待观察”而不是“正常”。</div>
+          <div>确认阈值缺失时显示“待定”而不是“正常”。</div>
           <div>保存 rule_version，支持历史结果重放和审计。</div>
           <div>监控各分组异常率，避免小样本造成突变。</div>
         </div>
         <div class="final-rule" style="margin-top:18px">
           <h3>推荐最终规则</h3>
-          <pre>题目级：超过同组经验 P95 → 按 P95 截尾，或按已确认的补偿规则处理
+          <pre>冷启动：基线未就绪 → 原始值只进入基线池，状态为“待定”，禁止执行 μ/3
+
+题目级：基线就绪后，超过同组经验 P95 → 按 P95 截尾，或按已确认的补偿规则处理
 
 答卷级：低于或等于同组经验 P05 → 标记“答题过快”，进入人工审核
 
-兜底：样本不足、阈值缺失或计算失败 → 标记“待观察”，禁止默认返回“正常”</pre>
+兜底：样本不足、阈值缺失或计算失败 → 标记“待定”，禁止默认返回“正常”</pre>
         </div>
       </section>
     </main>
