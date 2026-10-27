@@ -250,7 +250,7 @@
 
             <h4>4.6 异常率与人工审核</h4>
             <div class="doc-formula wide"><span>答卷时长异常率</span><strong>异常率 = (∑<sub>k=1</sub><sup>n卷</sup> 异常<sub>k</sub> / n<sub>卷</sub>) × 100%</strong><small>分母仅包含满足当前筛选条件的有效完成答卷。</small></div>
-            <dl class="field-list"><div><dt>正常</dt><dd>P卷高于配置下限，保留正常状态。</dd></div><div><dt>异常</dt><dd>P卷不高于配置下限，标记为答题过快或疑似乱答，并进入人工审核。</dd></div><div><dt>待观察</dt><dd>样本不足或 σ = 0，无法稳定计算分位时不自动判异常。</dd></div></dl>
+            <dl class="field-list"><div><dt>正常</dt><dd>P卷高于配置下限，保留正常状态。</dd></div><div><dt>异常</dt><dd>P卷不高于配置下限，标记为答题过快或疑似乱答，并进入人工审核。</dd></div><div><dt>待定</dt><dd>样本不足或 σ = 0，无法稳定计算分位时不自动判异常。</dd></div></dl>
 
             <div class="callout amber"><strong>计算注意事项</strong><p>所有时长必须先统一单位；同一指标应按车型、问卷版本等同质分组计算。实际数据明显右偏时使用经验 Qₚ，不应直接用 μ ± zσ 替代。</p></div>
             <p class="doc-note">页面说明版本：V1.6 · 更新时间：2026-10-23</p>
@@ -301,7 +301,7 @@
       <div class="doc-formula-grid"><div class="doc-formula"><span>答卷平均时长</span><strong>μ<sub>卷</sub> = 1/n<sub>卷</sub> · ∑ y<sub>j</sub></strong></div><div class="doc-formula"><span>答卷标准差</span><strong>σ<sub>卷</sub> = √[1/n<sub>卷</sub> · ∑(y<sub>i</sub> − μ<sub>卷</sub>)²]</strong></div><div class="doc-formula"><span>答卷 Z 值</span><strong>Z<sub>卷</sub> = (y<sub>i</sub> − μ<sub>卷</sub>) / σ<sub>卷</sub></strong></div><div class="doc-formula"><span>答卷分位</span><strong>P<sub>卷</sub> = Φ(Z<sub>卷</sub>)</strong></div></div>
       <div class="formula-card"><span>默认审核规则</span><strong>P<sub>卷</sub> ≤ 5.00% → 异常回答</strong><small>异常原因：答题过快或疑似乱回答；进入人工审核表单并高亮展示。</small></div>
       <h4>审核输出</h4>
-      <table class="doc-table"><thead><tr><th>结果</th><th>条件</th><th>页面处理</th></tr></thead><tbody><tr><td><span class="doc-status danger">异常</span></td><td>P卷 ≤ 配置下限</td><td>高亮并进入人工审核</td></tr><tr><td><span class="doc-status success">正常</span></td><td>P卷 &gt; 配置下限</td><td>保留正常状态</td></tr><tr><td><span class="doc-status muted">待观察</span></td><td>样本不足或 σ = 0</td><td>不自动判定，提示复核</td></tr></tbody></table>
+      <table class="doc-table"><thead><tr><th>结果</th><th>条件</th><th>页面处理</th></tr></thead><tbody><tr><td><span class="doc-status danger">异常</span></td><td>P卷 ≤ 配置下限</td><td>高亮并进入人工审核</td></tr><tr><td><span class="doc-status success">正常</span></td><td>P卷 &gt; 配置下限</td><td>保留正常状态</td></tr><tr><td><span class="doc-status muted">待定</span></td><td>样本不足或 σ = 0</td><td>不自动判定，提示复核</td></tr></tbody></table>
     </section>
     <section class="doc-section" id="incremental">
       <h3>5. 历史统计量的补偿计算</h3>
@@ -314,7 +314,7 @@
       <h3>6. 字段与配置口径</h3>
       <table class="doc-table"><thead><tr><th>字段</th><th>含义</th><th>单位/默认值</th></tr></thead><tbody><tr><td>xᵢ</td><td>某 VIN 的单次题目实际作答时长</td><td>秒</td></tr><tr><td>yᵢ</td><td>完成异常替代后的单份问卷推定时长</td><td>分钟</td></tr><tr><td>n题 / n卷</td><td>答题记录数 / 完成答卷数</td><td>条</td></tr><tr><td>μ题 / σ题</td><td>题目级平均时长 / 标准差</td><td>秒</td></tr><tr><td>μ卷 / σ卷</td><td>答卷级平均时长 / 标准差</td><td>分钟</td></tr><tr><td>P题上限</td><td>题目超长记录的分位阈值</td><td>95.00%</td></tr><tr><td>P卷下限</td><td>过快答卷的审核阈值</td><td>5.00%</td></tr></tbody></table>
       <h4>边界与降级策略</h4>
-      <ul><li>σ = 0 时不可计算 Z 值，记录进入“待观察”，不自动判断异常。</li><li>有效样本少于 200 时回退至同问卷类型近 90 天基线；少于 50 时仅提示。</li><li>缺失、负值、未完成和超时中断记录不进入统计样本。</li><li>阈值修改后记录规则版本，历史结果不静默覆盖，支持重新回放。</li></ul>
+      <ul><li>σ = 0 时不可计算 Z 值，记录进入“待定”，不自动判断异常。</li><li>有效样本少于 200 时回退至同问卷类型近 90 天基线；少于 50 时仅提示。</li><li>缺失、负值、未完成和超时中断记录不进入统计样本。</li><li>阈值修改后记录规则版本，历史结果不静默覆盖，支持重新回放。</li></ul>
       <p class="doc-note">文档版本：V1.4 · 更新时间：2026-10-22 · 负责人：数据产品组</p>
     </section>
   </div>
