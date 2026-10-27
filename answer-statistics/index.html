@@ -117,42 +117,6 @@
             </button>
           </section>
 
-          <section class="insight-grid">
-            <article class="panel chart-panel">
-              <div class="panel-head">
-                <div><h2>答题趋势</h2><p>近 14 天有效答卷与异常答卷变化</p></div>
-                <div class="legend"><span><i class="blue"></i>有效答卷</span><span><i class="orange"></i>时长异常</span></div>
-              </div>
-              <div class="chart-wrap">
-                <div class="y-labels"><span>20k</span><span>15k</span><span>10k</span><span>5k</span><span>0</span></div>
-                <svg id="trendChart" viewBox="0 0 760 210" preserveAspectRatio="none" role="img" aria-label="答题趋势折线图">
-                  <defs><linearGradient id="areaBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4472e8" stop-opacity=".22"/><stop offset="1" stop-color="#4472e8" stop-opacity="0"/></linearGradient></defs>
-                  <g class="grid-lines"><line x1="0" y1="10" x2="760" y2="10"/><line x1="0" y1="55" x2="760" y2="55"/><line x1="0" y1="100" x2="760" y2="100"/><line x1="0" y1="145" x2="760" y2="145"/><line x1="0" y1="190" x2="760" y2="190"/></g>
-                  <path class="area" d="M0,154 C40,140 54,124 90,132 S155,96 190,109 S252,80 292,88 S350,70 390,83 S452,50 486,64 S552,33 586,50 S646,16 680,30 S730,18 760,22 L760,190 L0,190Z"/>
-                  <path class="line-main" d="M0,154 C40,140 54,124 90,132 S155,96 190,109 S252,80 292,88 S350,70 390,83 S452,50 486,64 S552,33 586,50 S646,16 680,30 S730,18 760,22"/>
-                  <path class="line-alert" d="M0,176 C45,170 62,181 105,169 S170,177 220,165 S294,172 345,156 S425,168 475,152 S545,164 598,148 S690,162 760,145"/>
-                  <circle class="focus-dot" cx="586" cy="50" r="5"/>
-                </svg>
-                <div class="chart-float-tip" aria-label="10月18日，有效答卷16842"><span>10月18日</span><strong>有效 16,842</strong></div>
-                <div class="x-labels"><span>10/08</span><span>10/10</span><span>10/12</span><span>10/14</span><span>10/16</span><span>10/18</span><span>10/20</span></div>
-              </div>
-            </article>
-
-            <article class="panel distribution-panel">
-              <div class="panel-head"><div><h2>时长分布</h2><p>右偏分布 · 对数尺度</p></div><span class="live-tag">规则已生效</span></div>
-              <div class="distribution-chart">
-                <div class="threshold p05"><span>P05 · 1.8m</span></div>
-                <div class="threshold p95"><span>P95 · 18.6m</span></div>
-                <svg viewBox="0 0 420 190" preserveAspectRatio="none" aria-label="右偏时长分布曲线">
-                  <defs><linearGradient id="distArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d63e7" stop-opacity=".38"/><stop offset="1" stop-color="#7d63e7" stop-opacity=".03"/></linearGradient></defs>
-                  <path d="M5,178 C28,177 40,160 55,106 C70,50 95,25 126,42 C158,60 166,104 196,127 C229,152 260,157 298,165 C334,172 370,176 415,178 L415,190 L5,190Z" fill="url(#distArea)"/>
-                  <path d="M5,178 C28,177 40,160 55,106 C70,50 95,25 126,42 C158,60 166,104 196,127 C229,152 260,157 298,165 C334,172 370,176 415,178" fill="none" stroke="#7357db" stroke-width="3"/>
-                </svg>
-                <div class="dist-axis"><span>0</span><span>5</span><span>10</span><span>20</span><span>40+ 分钟</span></div>
-              </div>
-              <div class="rule-summary"><span class="rule-icon">ƒ</span><div><strong>按百分位识别异常</strong><p>低于 P05 或高于 P95 的答卷进入人工审核，不再使用正态分布 Z-score。</p></div><button id="detailRuleButton">查看规则</button></div>
-            </article>
-          </section>
 
           <section class="panel data-panel">
             <div class="panel-head table-head">
@@ -189,13 +153,13 @@
           <section class="doc-section" id="page-overview">
             <h3>1. 功能概述</h3>
             <p>答题统计用于从问卷、车型和问卷类型三个维度，监控答卷规模、作答效率与异常质量，帮助审核人员快速定位需要复核的样本。</p>
-            <div class="callout blue"><strong>页面定位</strong><p>页面集中展示品牌级核心指标、答题趋势、时长分布及三个业务维度的明细列表，并提供有效分位配置入口。</p></div>
-            <div class="doc-scope-grid"><div><span>01</span><strong>总览指标</strong><small>查看答题量、答卷量、均值、标准差和有效时长。</small></div><div><span>02</span><strong>趋势与分布</strong><small>观察有效答卷变化及右偏长尾时长分布。</small></div><div><span>03</span><strong>维度明细</strong><small>按问卷、车型、问卷类型定位异常数据。</small></div></div>
+            <div class="callout blue"><strong>页面定位</strong><p>页面集中展示品牌级核心指标及三个业务维度的明细列表，并提供有效分位配置入口。</p></div>
+            <div class="doc-scope-grid"><div><span>01</span><strong>总览指标</strong><small>查看答题量、答卷量、均值、标准差和有效时长。</small></div><div><span>02</span><strong>分位配置</strong><small>配置题目级上分位与答卷级下分位阈值。</small></div><div><span>03</span><strong>维度明细</strong><small>按问卷、车型、问卷类型定位异常数据。</small></div></div>
           </section>
           <section class="doc-section" id="page-operation">
             <h3>2. 页面操作说明</h3>
             <h4>查询与查看</h4>
-            <ol><li>选择调研项目、数据周期和问卷状态，点击「查询」刷新当前统计结果。</li><li>在关键指标区查看全品牌答题与答卷的数量、均值、标准差和有效时长。</li><li>通过答题趋势与时长分布识别波动，再切换问卷、车型或问卷类型查看明细。</li><li>使用列表搜索、筛选和分页定位目标记录；需要留存时可导出当前报表。</li></ol>
+            <ol><li>选择调研项目、数据周期和问卷状态，点击「查询」刷新当前统计结果。</li><li>在关键指标区查看全品牌答题与答卷的数量、均值、标准差和有效时长。</li><li>通过答题与答卷有效分位配置调整时长判断阈值，再切换问卷、车型或问卷类型查看明细。</li><li>使用列表搜索、筛选和分页定位目标记录；需要留存时可导出当前报表。</li></ol>
             <h4>分位配置</h4>
             <ul><li>点击「答题有效分位」设置题目级分位上限，默认 P ≤ 95.00%。</li><li>点击「答卷有效分位」设置答卷级分位下限，默认 P ≥ 5.00%。</li><li>确认后配置保存在当前浏览器，并同步更新按钮中的当前值。</li></ul>
           </section>
