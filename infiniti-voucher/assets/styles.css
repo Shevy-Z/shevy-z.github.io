@@ -97,6 +97,11 @@ svg { width: 1.2rem; height: 1.2rem; fill: none; stroke: currentColor; stroke-wi
 .app-shell { min-height: 100vh; background: #f6f6f7; }
 .topbar { height: 82px; display: flex; align-items: center; justify-content: space-between; padding: 0 max(5vw, 2rem); background: white; border-bottom: 1px solid var(--line); }
 .topbar__right { display: flex; align-items: center; gap: .65rem; }
+.product-doc-entry { min-height: 2.4rem; display: inline-flex; align-items: center; gap: .45rem; padding: 0 .8rem; border: 1px solid #d9dade; background: white; color: #3f4045; font-size: .76rem; font-weight: 600; white-space: nowrap; transition: .2s ease; }
+.product-doc-entry:hover { border-color: #8b8c91; background: #f8f8f8; }
+.product-doc-entry svg { width: 1rem; height: 1rem; color: var(--warm); }
+.product-doc-entry--floating { position: fixed; z-index: 10; top: 1.5rem; right: 1.5rem; border-color: rgba(255,255,255,.3); background: rgba(13,14,17,.7); color: white; backdrop-filter: blur(12px); }
+.product-doc-entry--floating:hover { border-color: rgba(255,255,255,.65); background: rgba(13,14,17,.86); }
 .user-chip { display: flex; align-items: center; gap: .65rem; padding-right: 1.2rem; margin-right: .5rem; border-right: 1px solid var(--line); }
 .user-chip__avatar { width: 2.1rem; height: 2.1rem; display: grid; place-items: center; border-radius: 50%; background: #1a1b20; color: white; font-size: .8rem; }
 .user-chip small, .user-chip strong { display: block; }
@@ -158,6 +163,7 @@ svg { width: 1.2rem; height: 1.2rem; fill: none; stroke: currentColor; stroke-wi
 .modal-backdrop { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 1rem; background: rgba(7,8,10,.62); backdrop-filter: blur(5px); animation: fade .2s ease; }
 .modal { width: min(500px, 100%); max-height: calc(100vh - 2rem); overflow: auto; background: white; box-shadow: var(--shadow); animation: modal-in .25s ease; }
 .modal--wide { width: min(720px, 100%); }
+.modal--document { width: min(880px, 100%); }
 .modal__header { display: flex; align-items: flex-start; justify-content: space-between; padding: 1.8rem 2rem 1.3rem; border-bottom: 1px solid var(--line); }
 .modal__header h2 { margin: 0; font-size: 1.35rem; }
 .modal__header .eyebrow { margin-bottom: .3rem; }
@@ -165,6 +171,28 @@ svg { width: 1.2rem; height: 1.2rem; fill: none; stroke: currentColor; stroke-wi
 .modal__body { padding: 1.5rem 2rem 2rem; }
 .modal-copy { margin: 0 0 1.2rem; color: var(--muted); font-size: .85rem; line-height: 1.7; }
 .modal__actions { display: flex; justify-content: flex-end; gap: .7rem; margin-top: 1.7rem; }
+.product-document { padding-top: 1.8rem; }
+.product-document__intro { padding: 1.5rem; border-left: 3px solid var(--warm); background: #f5f2ee; }
+.product-document__intro > span { color: #846e52; font-size: .72rem; font-weight: 700; letter-spacing: .08em; }
+.product-document__intro > strong { display: block; margin: .45rem 0 .6rem; font-size: 1.05rem; }
+.product-document__intro p, .product-document__section p, .product-document__notice p { margin: 0; color: var(--muted); font-size: .82rem; line-height: 1.75; }
+.product-document__quick { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0 1.5rem; }
+.product-document__quick a { padding: .45rem .7rem; border: 1px solid var(--line); background: white; color: #55565c; font-size: .72rem; }
+.product-document__section { padding: 1.3rem 0; border-top: 1px solid var(--line); scroll-margin-top: 1rem; }
+.product-document__section h3 { display: flex; align-items: center; gap: .65rem; margin: 0 0 1rem; font-size: .95rem; }
+.product-document__section h3 span { color: var(--warm); font-family: monospace; font-size: .72rem; }
+.product-document__roles, .product-document__grid { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+.product-document__roles article, .product-document__grid article { padding: 1rem; border: 1px solid var(--line); background: #fafafa; }
+.product-document__roles strong, .product-document__grid strong { display: block; margin-bottom: .4rem; font-size: .8rem; }
+.product-document__steps { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin: 0; padding: 0; list-style: none; counter-reset: doc-step; }
+.product-document__steps li { position: relative; min-height: 94px; padding: 1rem 1rem 1rem 3rem; border: 1px solid var(--line); counter-increment: doc-step; }
+.product-document__steps li::before { content: counter(doc-step); position: absolute; left: 1rem; top: 1rem; width: 1.35rem; height: 1.35rem; display: grid; place-items: center; border-radius: 50%; background: #17181c; color: white; font-size: .65rem; }
+.product-document__steps b { display: block; margin-bottom: .3rem; font-size: .8rem; }
+.product-document__rules { display: grid; gap: .55rem; margin: 0; padding: 0; list-style: none; }
+.product-document__rules li { padding: .75rem .9rem; border-left: 2px solid #d2c3af; background: #fafafa; color: #55565c; font-size: .8rem; line-height: 1.65; }
+.product-document__notice { margin-top: .4rem; padding: 1rem 1.1rem; background: #17181c; color: white; }
+.product-document__notice strong { display: block; margin-bottom: .35rem; font-size: .8rem; }
+.product-document__notice p { color: #b8b9bd; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .form-grid .field { margin: 0; }
 .form-grid .field--full { grid-column: 1 / -1; }
@@ -226,7 +254,7 @@ svg { width: 1.2rem; height: 1.2rem; fill: none; stroke: currentColor; stroke-wi
 .admin-shell { min-height: 100vh; margin-left: 245px; }
 .admin-topbar { height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 0 2.3rem; border-bottom: 1px solid var(--line); background: white; font-size: .8rem; }
 .breadcrumb { color: #929399; }
-.admin-user { display: flex; align-items: center; gap: .6rem; }
+.admin-topbar__right, .admin-user { display: flex; align-items: center; gap: .6rem; }
 .admin-user__avatar { width: 2.1rem; height: 2.1rem; display: grid; place-items: center; border-radius: 50%; background: #1a1b1f; color: white; font-size: .75rem; }
 .admin-user strong, .admin-user small { display: block; }
 .admin-user strong { font-size: .75rem; }.admin-user small { color: var(--muted); font-size: .6rem; }
@@ -320,6 +348,8 @@ td code { padding: .25rem .4rem; background: #f0f0f1; color: #38393e; font-size:
   .mobile-brand { display: inline-flex; }
   .topbar { height: auto; min-height: 70px; padding: .8rem 1rem; }
   .topbar__right { gap: .1rem; }
+  .product-doc-entry { padding: 0 .55rem; font-size: .7rem; }
+  .topbar .product-doc-entry span { display: none; }
   .user-chip { padding-right: .5rem; margin-right: 0; }
   .user-chip > div { display: none; }
   .topbar-action { padding: .6rem .4rem; font-size: .7rem; }
@@ -361,6 +391,8 @@ td code { padding: .25rem .4rem; background: #f0f0f1; color: #38393e; font-size:
   .voucher-info__bottom { align-items: stretch; flex-direction: column; }
   .issue-card__top { align-items: flex-start; }
   .modal__header, .modal__body { padding-left: 1.2rem; padding-right: 1.2rem; }
+  .product-doc-entry--floating { top: 1rem; right: 1rem; }
+  .product-document__roles, .product-document__grid, .product-document__steps { grid-template-columns: 1fr; }
   .modal__actions .button { flex: 1; padding: 0 .6rem; }
   .form-grid { grid-template-columns: 1fr; }
   .form-grid .field--full { grid-column: auto; }

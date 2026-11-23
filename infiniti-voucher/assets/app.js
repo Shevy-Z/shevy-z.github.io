@@ -126,7 +126,8 @@
   function openModal(content, size) {
     const root = document.getElementById("modalRoot");
     if (!root) return;
-    root.innerHTML = `<div class="modal-backdrop"><section class="modal ${size === "wide" ? "modal--wide" : ""}" role="dialog" aria-modal="true">${content}</section></div>`;
+    const sizeClass = size === "wide" ? "modal--wide" : size === "document" ? "modal--document" : "";
+    root.innerHTML = `<div class="modal-backdrop"><section class="modal ${sizeClass}" role="dialog" aria-modal="true">${content}</section></div>`;
     document.body.classList.add("modal-open");
     root.querySelectorAll("[data-close-modal]").forEach((button) => button.addEventListener("click", closeModal));
     root.querySelector(".modal-backdrop").addEventListener("click", (event) => { if (event.target.classList.contains("modal-backdrop")) closeModal(); });
@@ -134,6 +135,61 @@
 
   function modalHeader(eyebrow, title) {
     return `<header class="modal__header"><div><p class="eyebrow">${escapeHtml(eyebrow)}</p><h2>${escapeHtml(title)}</h2></div><button class="modal__close" data-close-modal aria-label="关闭">×</button></header>`;
+  }
+
+  function openProductDocument() {
+    openModal(`${modalHeader("PRODUCT GUIDE", "产品说明文档")}
+      <div class="modal__body product-document">
+        <section class="product-document__intro">
+          <span>英菲尼迪取送车券管理系统</span>
+          <strong>经销商发券与活动配额管理平台</strong>
+          <p>本系统面向英菲尼迪经销商及活动管理员，用于按 VIN 发放取送车权益券、查询发放记录，并统一管理经销商账号与活动配额。</p>
+        </section>
+        <nav class="product-document__quick" aria-label="文档章节">
+          <a href="#docRoles">角色说明</a><a href="#docDealer">经销商端</a><a href="#docAdmin">管理后台</a><a href="#docRules">业务规则</a>
+        </nav>
+        <section id="docRoles" class="product-document__section">
+          <h3><span>01</span>角色与权限</h3>
+          <div class="product-document__roles">
+            <article><strong>经销商用户</strong><p>使用经销商编码和密码登录，查询 VIN 发券记录、发放取送车券及修改本人登录密码。</p></article>
+            <article><strong>活动管理员</strong><p>维护经销商名单、登录密码、启用状态和活动发券配额，并查看整体发放数据。</p></article>
+          </div>
+        </section>
+        <section id="docDealer" class="product-document__section">
+          <h3><span>02</span>经销商发券端操作</h3>
+          <ol class="product-document__steps">
+            <li><b>登录系统</b><p>输入经销商编码和密码；账号被禁用时无法登录。</p></li>
+            <li><b>查询卡券</b><p>输入 17 位 VIN，查看该 VIN 已发放的券编号、状态、发券时间和有效期。</p></li>
+            <li><b>发放卡券</b><p>点击“发券”并确认 VIN，系统一次发放 2 张取送车券。</p></li>
+            <li><b>账号安全</b><p>可在右上角修改密码，新密码会同步到经销商管理后台。</p></li>
+          </ol>
+        </section>
+        <section id="docAdmin" class="product-document__section">
+          <h3><span>03</span>经销商管理后台操作</h3>
+          <div class="product-document__grid">
+            <article><strong>名单管理</strong><p>新增经销商，下载 CSV 模板，批量导入或导出经销商名单。</p></article>
+            <article><strong>账号管理</strong><p>编辑登录密码、复制账号密码，并启用或禁用经销商账号。</p></article>
+            <article><strong>配额管理</strong><p>按经销商配置可发券数量，并查看已发券数与剩余数量。</p></article>
+            <article><strong>查询筛选</strong><p>支持按经销商名称或经销商编码快速筛选名单。</p></article>
+          </div>
+        </section>
+        <section id="docRules" class="product-document__section">
+          <h3><span>04</span>核心业务规则</h3>
+          <ul class="product-document__rules">
+            <li><b>每次发放：</b>固定向同一 VIN 发放 2 张取送车券。</li>
+            <li><b>单车限制：</b>同一 VIN 每期活动最多发放 2 张，不可重复发放。</li>
+            <li><b>配额要求：</b>经销商剩余配额不足 2 张时不可发券；配置数量须为非负偶数。</li>
+            <li><b>时间规则：</b>发券操作不限制时间；卡券有效期以查询结果显示为准。</li>
+            <li><b>VIN 规则：</b>VIN 为 17 位字母与数字组合，不包含 I、O、Q。</li>
+          </ul>
+        </section>
+        <aside class="product-document__notice"><strong>原型数据说明</strong><p>当前版本为交互原型，账号、配额、状态和发券记录保存在同一浏览器的本地存储中。正式上线时需接入统一账号体系、活动服务及业务数据库。</p></aside>
+        <div class="modal__actions"><button class="button button--dark" type="button" data-close-modal>关闭文档</button></div>
+      </div>`, "document");
+  }
+
+  function initProductDocument() {
+    document.querySelectorAll("[data-product-doc]").forEach((button) => button.addEventListener("click", openProductDocument));
   }
 
   function initDealer() {
@@ -610,6 +666,7 @@
   }
 
   const page = document.body.dataset.page;
+  initProductDocument();
   if (page === "dealer") initDealer();
   if (page === "admin") initAdmin();
 })();
