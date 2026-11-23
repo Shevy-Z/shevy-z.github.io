@@ -4,14 +4,14 @@
   const STORAGE_KEY = "infiniti-voucher-prototype-v1";
   const SESSION_KEY = "infiniti-dealer-session";
   const sampleDealers = [
-    { id: 1, name: "上海永达英菲尼迪浦东店", region: "华东大区", area: "上海小区", code: "SH-IF-001", sa: "SA-SH-018", password: "A7K9M2Q4", quota: 40, issued: 12 },
-    { id: 2, name: "北京运通英菲尼迪亦庄店", region: "华北大区", area: "北京小区", code: "BJ-IF-006", sa: "SA-BJ-032", password: "R4T8P2X6", quota: 60, issued: 36 },
-    { id: 3, name: "广州长悦英菲尼迪番禺店", region: "华南大区", area: "广佛小区", code: "GZ-IF-003", sa: "SA-GZ-027", password: "N6C3W9K5", quota: 50, issued: 18 },
-    { id: 4, name: "成都三和英菲尼迪高新店", region: "西区大区", area: "成渝小区", code: "CD-IF-008", sa: "SA-CD-014", password: "H2V7D5M8", quota: 36, issued: 22 },
-    { id: 5, name: "杭州东昌英菲尼迪滨江店", region: "华东大区", area: "浙江小区", code: "HZ-IF-012", sa: "SA-HZ-046", password: "Q9F4B7L2", quota: 48, issued: 30 },
-    { id: 6, name: "深圳东风南方英菲尼迪宝安店", region: "华南大区", area: "深莞小区", code: "SZ-IF-015", sa: "SA-SZ-051", password: "U5E8J3S7", quota: 44, issued: 28 },
-    { id: 7, name: "南京文华英菲尼迪江宁店", region: "华东大区", area: "苏皖小区", code: "NJ-IF-009", sa: "SA-NJ-021", password: "Z3M6A8R4", quota: 32, issued: 8 },
-    { id: 8, name: "武汉三环英菲尼迪光谷店", region: "华北大区", area: "华中小区", code: "WH-IF-011", sa: "SA-WH-038", password: "B8K2Y6G5", quota: 38, issued: 16 }
+    { id: 1, name: "上海永达英菲尼迪浦东店", region: "华东大区", area: "上海小区", code: "SH-IF-001", password: "A7K9M2Q4", quota: 40, issued: 12 },
+    { id: 2, name: "北京运通英菲尼迪亦庄店", region: "华北大区", area: "北京小区", code: "BJ-IF-006", password: "R4T8P2X6", quota: 60, issued: 36 },
+    { id: 3, name: "广州长悦英菲尼迪番禺店", region: "华南大区", area: "广佛小区", code: "GZ-IF-003", password: "N6C3W9K5", quota: 50, issued: 18 },
+    { id: 4, name: "成都三和英菲尼迪高新店", region: "西区大区", area: "成渝小区", code: "CD-IF-008", password: "H2V7D5M8", quota: 36, issued: 22 },
+    { id: 5, name: "杭州东昌英菲尼迪滨江店", region: "华东大区", area: "浙江小区", code: "HZ-IF-012", password: "Q9F4B7L2", quota: 48, issued: 30 },
+    { id: 6, name: "深圳东风南方英菲尼迪宝安店", region: "华南大区", area: "深莞小区", code: "SZ-IF-015", password: "U5E8J3S7", quota: 44, issued: 28 },
+    { id: 7, name: "南京文华英菲尼迪江宁店", region: "华东大区", area: "苏皖小区", code: "NJ-IF-009", password: "Z3M6A8R4", quota: 32, issued: 8 },
+    { id: 8, name: "武汉三环英菲尼迪光谷店", region: "华北大区", area: "华中小区", code: "WH-IF-011", password: "B8K2Y6G5", quota: 38, issued: 16 }
   ];
 
   const sampleVouchers = [
@@ -291,7 +291,7 @@
           <td><span class="table-index">${String(index + 1).padStart(2, "0")}</span></td>
           <td><div class="dealer-cell"><span>${escapeHtml(dealer.name.charAt(0))}</span><div><strong>${escapeHtml(dealer.name)}</strong><small>密码····${escapeHtml(dealer.password.slice(-2))}</small></div></div></td>
           <td>${escapeHtml(dealer.region)}</td><td>${escapeHtml(dealer.area)}</td>
-          <td><code>${escapeHtml(dealer.code)}</code></td><td><code class="muted-code">${escapeHtml(dealer.sa)}</code></td>
+          <td><code>${escapeHtml(dealer.code)}</code></td>
           <td><strong>${dealer.quota}</strong> 张 <button class="mini-edit" data-edit="${dealer.id}" title="调整配额">编辑</button></td>
           <td><div class="issued-cell"><strong>${dealer.issued}</strong> 张<span><i style="width:${Math.min(100, dealer.quota ? dealer.issued / dealer.quota * 100 : 0)}%"></i></span></div></td>
           <td><button class="copy-action" data-copy="${dealer.id}"><svg viewBox="0 0 24 24"><path d="M8 8h11v11H8zM5 15V5h10"></path></svg>复制账号密码</button></td>
@@ -309,8 +309,7 @@
       data = loadData();
       const name = document.getElementById("dealerFilter").value.trim().toLowerCase();
       const code = document.getElementById("codeFilter").value.trim().toLowerCase();
-      const sa = document.getElementById("saFilter").value.trim().toLowerCase();
-      visibleDealers = data.dealers.filter((d) => d.name.toLowerCase().includes(name) && d.code.toLowerCase().includes(code) && d.sa.toLowerCase().includes(sa));
+      visibleDealers = data.dealers.filter((d) => d.name.toLowerCase().includes(name) && d.code.toLowerCase().includes(code));
       renderTable();
     }
 
@@ -348,9 +347,9 @@
     }
 
     document.getElementById("filterBtn").addEventListener("click", applyFilters);
-    ["dealerFilter", "codeFilter", "saFilter"].forEach((id) => document.getElementById(id).addEventListener("keydown", (event) => { if (event.key === "Enter") applyFilters(); }));
+    ["dealerFilter", "codeFilter"].forEach((id) => document.getElementById(id).addEventListener("keydown", (event) => { if (event.key === "Enter") applyFilters(); }));
     document.getElementById("clearFilter").addEventListener("click", () => {
-      ["dealerFilter", "codeFilter", "saFilter"].forEach((id) => { document.getElementById(id).value = ""; });
+      ["dealerFilter", "codeFilter"].forEach((id) => { document.getElementById(id).value = ""; });
       applyFilters();
     });
     document.getElementById("exportBtn").addEventListener("click", () => showToast("经销商名单已导出（演示）", "success"));
