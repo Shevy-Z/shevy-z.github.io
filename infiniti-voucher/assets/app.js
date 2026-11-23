@@ -137,59 +137,119 @@
     return `<header class="modal__header"><div><p class="eyebrow">${escapeHtml(eyebrow)}</p><h2>${escapeHtml(title)}</h2></div><button class="modal__close" data-close-modal aria-label="关闭">×</button></header>`;
   }
 
+  function dealerProductDocument() {
+    return `
+      <section class="product-drawer__intro">
+        <span>经销商发券端</span>
+        <strong>取送车券查询与发放说明</strong>
+        <p>供经销商用户登录后查询 VIN 发券记录、发放取送车券及维护本人登录密码。</p>
+      </section>
+      <nav class="product-drawer__quick" aria-label="文档章节"><a href="#dealerLogic">页面逻辑</a><a href="#dealerFields">字段来源</a><a href="#dealerRules">业务规则</a></nav>
+      <section id="dealerLogic" class="product-drawer__section">
+        <h3>页面逻辑</h3>
+        <ol class="product-drawer__flow">
+          <li><b>账号登录</b><p>按经销商编码匹配账号，依次校验密码与启用状态；禁用账号不可登录。</p></li>
+          <li><b>查券</b><p>校验 17 位 VIN 后，仅查询当前经销商向该 VIN 发放的卡券记录。</p></li>
+          <li><b>发券</b><p>先校验 VIN、单车发放上限和剩余配额，通过后一次生成 2 张券并扣减 2 张配额。</p></li>
+          <li><b>密码修改</b><p>校验当前密码和新密码格式，保存后与后台经销商密码保持一致。</p></li>
+        </ol>
+      </section>
+      <section id="dealerFields" class="product-drawer__section">
+        <h3>页面字段与来源</h3>
+        <div class="product-drawer__table-wrap"><table class="product-drawer__table"><thead><tr><th>页面字段</th><th>来源出处</th><th>处理逻辑</th></tr></thead><tbody>
+          <tr><td>经销商账号</td><td>后台经销商编码</td><td>新增或导入经销商时生成账号</td></tr>
+          <tr><td>登录密码</td><td>后台初始密码／编辑密码</td><td>前端修改后同步回后台</td></tr>
+          <tr><td>账号状态</td><td>后台启用／禁用设置</td><td>禁用时拦截登录及已有会话</td></tr>
+          <tr><td>当前用户、经销商编码</td><td>当前登录经销商档案</td><td>登录成功后读取并展示</td></tr>
+          <tr><td>VIN 码</td><td>经销商手工输入</td><td>转大写并校验 17 位规则</td></tr>
+          <tr><td>卡券列表、券编号</td><td>当前经销商的发券记录</td><td>按经销商编码和 VIN 联合筛选</td></tr>
+          <tr><td>卡券状态</td><td>卡券／核销系统</td><td>展示未核销或已核销</td></tr>
+          <tr><td>发券时间</td><td>发券成功时的系统时间</td><td>生成卡券记录时写入</td></tr>
+          <tr><td>有效期</td><td>活动卡券有效期规则</td><td>原型按发券日顺延 6 个月</td></tr>
+          <tr><td>剩余券数</td><td>后台配额、累计已发券数</td><td>可发券数量－已发券数量</td></tr>
+          <tr><td>可发券次数</td><td>剩余券数</td><td>剩余券数 ÷ 2，向下取整</td></tr>
+        </tbody></table></div>
+      </section>
+      <section id="dealerRules" class="product-drawer__section">
+        <h3>核心业务规则</h3>
+        <ul class="product-drawer__rules">
+          <li>每次固定向同一 VIN 发放 2 张取送车券。</li>
+          <li>同一 VIN 每期最多发放 2 张，不允许重复发放。</li>
+          <li>剩余配额不足 2 张时，“发券”按钮不可用。</li>
+          <li>VIN 为 17 位字母与数字组合，不包含 I、O、Q。</li>
+          <li>发券时间不限制；卡券有效期以查询结果为准。</li>
+        </ul>
+      </section>
+      <aside class="product-drawer__notice"><b>原型数据说明</b><p>当前账号、配额和发券记录取自同域浏览器本地存储；正式系统需对接经销商主数据、卡券服务与核销系统。</p></aside>`;
+  }
+
+  function adminProductDocument() {
+    return `
+      <section class="product-drawer__intro">
+        <span>经销商管理后台</span>
+        <strong>账号、名单与发券配额管理说明</strong>
+        <p>供活动管理员维护经销商档案、登录账号状态和每期活动配额，并查看发放汇总数据。</p>
+      </section>
+      <nav class="product-drawer__quick" aria-label="文档章节"><a href="#adminLogic">页面逻辑</a><a href="#adminFields">字段来源</a><a href="#adminSync">跨端同步</a></nav>
+      <section id="adminLogic" class="product-drawer__section">
+        <h3>页面逻辑</h3>
+        <ol class="product-drawer__flow">
+          <li><b>数据概览</b><p>根据当前全部经销商档案及发券记录实时汇总总数、总配额、已发券数和剩余数。</p></li>
+          <li><b>名单维护</b><p>支持单个新增、CSV 批量导入、名单导出及按名称或编码筛选。</p></li>
+          <li><b>账号管理</b><p>可编辑密码、复制账号密码，并启用或禁用经销商登录权限。</p></li>
+          <li><b>配额管理</b><p>按经销商配置活动可发券总数，保存时校验偶数且不得小于已发券数。</p></li>
+        </ol>
+      </section>
+      <section id="adminFields" class="product-drawer__section">
+        <h3>页面字段与来源</h3>
+        <div class="product-drawer__table-wrap"><table class="product-drawer__table"><thead><tr><th>页面字段</th><th>来源出处</th><th>处理逻辑</th></tr></thead><tbody>
+          <tr><td>经销商名称</td><td>经销商主数据／新增／CSV 导入</td><td>作为名单展示及名称筛选条件</td></tr>
+          <tr><td>大区、小区</td><td>经销商组织归属</td><td>新增或导入时录入</td></tr>
+          <tr><td>经销商编码</td><td>经销商主数据</td><td>唯一值，同时作为前端登录账号</td></tr>
+          <tr><td>登录密码</td><td>新增随机密码／导入值</td><td>后台编辑或前端修改后同步更新</td></tr>
+          <tr><td>账号状态</td><td>后台启用／禁用操作</td><td>直接控制前端登录权限</td></tr>
+          <tr><td>可发券数量</td><td>本期活动配额配置</td><td>须为非负偶数且不小于已发数</td></tr>
+          <tr><td>已发券数量</td><td>该经销商发券记录</td><td>按经销商编码统计记录数量</td></tr>
+          <tr><td>剩余可发</td><td>可发券数量、已发券数量</td><td>配额－已发券数量</td></tr>
+          <tr><td>经销商总数</td><td>当前经销商名单</td><td>统计名单记录数</td></tr>
+          <tr><td>总发券配额</td><td>各经销商可发券数量</td><td>汇总全部经销商配额</td></tr>
+          <tr><td>整体发放率</td><td>总配额、已发券总数</td><td>已发券总数 ÷ 总配额</td></tr>
+        </tbody></table></div>
+      </section>
+      <section id="adminSync" class="product-drawer__section">
+        <h3>名单导入与跨端同步</h3>
+        <ul class="product-drawer__rules">
+          <li>CSV 必填列：经销商名称、大区、小区、经销商编码、可发券数量。</li>
+          <li>初始密码为空时自动生成 8 位字母数字密码；状态为空时默认启用。</li>
+          <li>导入前统一校验编码重复、配额、密码和状态；全部通过后一次性写入。</li>
+          <li>密码、启用状态和发券配额更新后，前端读取同一经销商最新数据。</li>
+          <li>前端发券成功后，后台已发券数、剩余数和发放率同步刷新。</li>
+        </ul>
+      </section>
+      <aside class="product-drawer__notice"><b>原型数据说明</b><p>当前经销商档案及发券记录取自同域浏览器本地存储；正式系统需对接经销商主数据、统一账号服务和活动数据库。</p></aside>`;
+  }
+
+  function closeProductDocument() {
+    const root = document.getElementById("modalRoot");
+    if (root) root.innerHTML = "";
+    document.body.classList.remove("product-doc-open");
+  }
+
   function openProductDocument() {
-    openModal(`${modalHeader("PRODUCT GUIDE", "产品说明文档")}
-      <div class="modal__body product-document">
-        <section class="product-document__intro">
-          <span>英菲尼迪取送车券管理系统</span>
-          <strong>经销商发券与活动配额管理平台</strong>
-          <p>本系统面向英菲尼迪经销商及活动管理员，用于按 VIN 发放取送车权益券、查询发放记录，并统一管理经销商账号与活动配额。</p>
-        </section>
-        <nav class="product-document__quick" aria-label="文档章节">
-          <a href="#docRoles">角色说明</a><a href="#docDealer">经销商端</a><a href="#docAdmin">管理后台</a><a href="#docRules">业务规则</a>
-        </nav>
-        <section id="docRoles" class="product-document__section">
-          <h3><span>01</span>角色与权限</h3>
-          <div class="product-document__roles">
-            <article><strong>经销商用户</strong><p>使用经销商编码和密码登录，查询 VIN 发券记录、发放取送车券及修改本人登录密码。</p></article>
-            <article><strong>活动管理员</strong><p>维护经销商名单、登录密码、启用状态和活动发券配额，并查看整体发放数据。</p></article>
-          </div>
-        </section>
-        <section id="docDealer" class="product-document__section">
-          <h3><span>02</span>经销商发券端操作</h3>
-          <ol class="product-document__steps">
-            <li><b>登录系统</b><p>输入经销商编码和密码；账号被禁用时无法登录。</p></li>
-            <li><b>查询卡券</b><p>输入 17 位 VIN，查看该 VIN 已发放的券编号、状态、发券时间和有效期。</p></li>
-            <li><b>发放卡券</b><p>点击“发券”并确认 VIN，系统一次发放 2 张取送车券。</p></li>
-            <li><b>账号安全</b><p>可在右上角修改密码，新密码会同步到经销商管理后台。</p></li>
-          </ol>
-        </section>
-        <section id="docAdmin" class="product-document__section">
-          <h3><span>03</span>经销商管理后台操作</h3>
-          <div class="product-document__grid">
-            <article><strong>名单管理</strong><p>新增经销商，下载 CSV 模板，批量导入或导出经销商名单。</p></article>
-            <article><strong>账号管理</strong><p>编辑登录密码、复制账号密码，并启用或禁用经销商账号。</p></article>
-            <article><strong>配额管理</strong><p>按经销商配置可发券数量，并查看已发券数与剩余数量。</p></article>
-            <article><strong>查询筛选</strong><p>支持按经销商名称或经销商编码快速筛选名单。</p></article>
-          </div>
-        </section>
-        <section id="docRules" class="product-document__section">
-          <h3><span>04</span>核心业务规则</h3>
-          <ul class="product-document__rules">
-            <li><b>每次发放：</b>固定向同一 VIN 发放 2 张取送车券。</li>
-            <li><b>单车限制：</b>同一 VIN 每期活动最多发放 2 张，不可重复发放。</li>
-            <li><b>配额要求：</b>经销商剩余配额不足 2 张时不可发券；配置数量须为非负偶数。</li>
-            <li><b>时间规则：</b>发券操作不限制时间；卡券有效期以查询结果显示为准。</li>
-            <li><b>VIN 规则：</b>VIN 为 17 位字母与数字组合，不包含 I、O、Q。</li>
-          </ul>
-        </section>
-        <aside class="product-document__notice"><strong>原型数据说明</strong><p>当前版本为交互原型，账号、配额、状态和发券记录保存在同一浏览器的本地存储中。正式上线时需接入统一账号体系、活动服务及业务数据库。</p></aside>
-        <div class="modal__actions"><button class="button button--dark" type="button" data-close-modal>关闭文档</button></div>
-      </div>`, "document");
+    const root = document.getElementById("modalRoot");
+    if (!root) return;
+    const isAdmin = document.body.dataset.page === "admin";
+    root.innerHTML = `<aside class="product-drawer" role="complementary" aria-label="${isAdmin ? "管理后台" : "发券前端"}产品说明文档">
+      <header class="product-drawer__header"><div><p>PRODUCT GUIDE</p><h2>${isAdmin ? "管理后台产品说明" : "发券前端产品说明"}</h2></div><button type="button" data-close-product-doc aria-label="关闭产品说明文档">×</button></header>
+      <div class="product-drawer__body">${isAdmin ? adminProductDocument() : dealerProductDocument()}</div>
+    </aside>`;
+    document.body.classList.add("product-doc-open");
+    root.querySelector("[data-close-product-doc]").addEventListener("click", closeProductDocument);
   }
 
   function initProductDocument() {
     document.querySelectorAll("[data-product-doc]").forEach((button) => button.addEventListener("click", openProductDocument));
+    document.addEventListener("keydown", (event) => { if (event.key === "Escape" && document.body.classList.contains("product-doc-open")) closeProductDocument(); });
   }
 
   function initDealer() {
