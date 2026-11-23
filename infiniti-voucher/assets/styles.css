@@ -255,7 +255,10 @@ tbody tr:hover { background: #fafafa; }
 .dealer-cell > span { width: 2.1rem; height: 2.1rem; flex: 0 0 auto; display: grid; place-items: center; background: #ece8e2; color: #806b50; font-weight: 700; }
 .dealer-cell strong, .dealer-cell small { display: block; }
 .dealer-cell strong { max-width: 220px; overflow: hidden; text-overflow: ellipsis; font-size: .75rem; }
-.dealer-cell small { margin-top: .2rem; color: #9a9ba0; font-size: .6rem; }
+.dealer-cell small { display: flex; align-items: center; gap: .45rem; margin-top: .2rem; color: #9a9ba0; font-size: .6rem; }
+.account-status { padding: .12rem .35rem; font-style: normal; font-weight: 600; }
+.account-status.is-enabled, .info-status.is-enabled { background: #e8f5ef; color: var(--green); }
+.account-status.is-disabled, .info-status.is-disabled { background: #f7eaea; color: var(--red); }
 td code { padding: .25rem .4rem; background: #f0f0f1; color: #38393e; font-size: .68rem; }
 .muted-code { background: transparent; color: #73747a; }
 .mini-edit { margin-left: .3rem; padding: .15rem .3rem; border: 0; background: #eeece9; color: #806a4e; font-size: .6rem; }
@@ -265,6 +268,11 @@ td code { padding: .25rem .4rem; background: #f0f0f1; color: #38393e; font-size:
 .copy-action { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem .65rem; border: 1px solid #dadadd; background: white; color: #393a3f; font-size: .65rem; }
 .copy-action:hover { border-color: #8d8e93; }
 .copy-action svg { width: .8rem; height: .8rem; }
+.operation-actions { display: flex; align-items: center; gap: .35rem; min-width: 245px; }
+.action-button { padding: .5rem .6rem; border: 1px solid #dadadd; background: white; color: #393a3f; font-size: .65rem; }
+.action-button:hover { border-color: #8d8e93; }
+.action-button--danger { border-color: #ead4d4; color: var(--red); }
+.action-button--success { border-color: #cfe7dc; color: var(--green); }
 .table-empty { padding: 4rem 1rem; text-align: center; }
 .table-empty.is-hidden { display: none; }
 .table-empty .empty-icon { width: 3rem; height: 3rem; display: grid; place-items: center; margin: 0 auto 1rem; border-radius: 50%; background: #f0f0f1; color: #999a9f; font-size: 1.2rem; }
@@ -275,6 +283,13 @@ td code { padding: .25rem .4rem; background: #f0f0f1; color: #38393e; font-size:
 .selected-dealer { display: flex; align-items: center; gap: .8rem; padding: 1rem; background: #f4f4f5; }
 .selected-dealer > span { width: 2.4rem; height: 2.4rem; display: grid; place-items: center; background: #e5dfd6; color: #81694c; font-weight: 700; }
 .selected-dealer strong, .selected-dealer small { display: block; }.selected-dealer strong { font-size: .8rem; }.selected-dealer small { margin-top: .25rem; color: var(--muted); font-size: .68rem; }
+.dealer-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; padding: 1rem; background: #f4f4f5; }
+.dealer-info-grid > div { min-width: 0; }
+.dealer-info-grid > div:first-child { grid-column: 1 / -1; }
+.dealer-info-grid span, .dealer-info-grid strong { display: block; }
+.dealer-info-grid span { margin-bottom: .3rem; color: var(--muted); font-size: .65rem; }
+.dealer-info-grid strong { overflow: hidden; text-overflow: ellipsis; font-size: .78rem; }
+.dealer-info-grid .info-status { display: inline-block; padding: .18rem .4rem; font-size: .68rem; }
 .credential-block { padding: 1rem; background: #f3f3f4; font: .78rem/1.9 monospace; white-space: pre-wrap; }
 
 @media (max-width: 1100px) {

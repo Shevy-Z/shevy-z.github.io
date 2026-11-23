@@ -4,14 +4,14 @@
   const STORAGE_KEY = "infiniti-voucher-prototype-v1";
   const SESSION_KEY = "infiniti-dealer-session";
   const sampleDealers = [
-    { id: 1, name: "上海永达英菲尼迪浦东店", region: "华东大区", area: "上海小区", code: "SH-IF-001", password: "A7K9M2Q4", quota: 40, issued: 12 },
-    { id: 2, name: "北京运通英菲尼迪亦庄店", region: "华北大区", area: "北京小区", code: "BJ-IF-006", password: "R4T8P2X6", quota: 60, issued: 36 },
-    { id: 3, name: "广州长悦英菲尼迪番禺店", region: "华南大区", area: "广佛小区", code: "GZ-IF-003", password: "N6C3W9K5", quota: 50, issued: 18 },
-    { id: 4, name: "成都三和英菲尼迪高新店", region: "西区大区", area: "成渝小区", code: "CD-IF-008", password: "H2V7D5M8", quota: 36, issued: 22 },
-    { id: 5, name: "杭州东昌英菲尼迪滨江店", region: "华东大区", area: "浙江小区", code: "HZ-IF-012", password: "Q9F4B7L2", quota: 48, issued: 30 },
-    { id: 6, name: "深圳东风南方英菲尼迪宝安店", region: "华南大区", area: "深莞小区", code: "SZ-IF-015", password: "U5E8J3S7", quota: 44, issued: 28 },
-    { id: 7, name: "南京文华英菲尼迪江宁店", region: "华东大区", area: "苏皖小区", code: "NJ-IF-009", password: "Z3M6A8R4", quota: 32, issued: 8 },
-    { id: 8, name: "武汉三环英菲尼迪光谷店", region: "华北大区", area: "华中小区", code: "WH-IF-011", password: "B8K2Y6G5", quota: 38, issued: 16 }
+    { id: 1, name: "上海永达英菲尼迪浦东店", region: "华东大区", area: "上海小区", code: "SH-IF-001", password: "A7K9M2Q4", quota: 40, issued: 12, enabled: true },
+    { id: 2, name: "北京运通英菲尼迪亦庄店", region: "华北大区", area: "北京小区", code: "BJ-IF-006", password: "R4T8P2X6", quota: 60, issued: 36, enabled: true },
+    { id: 3, name: "广州长悦英菲尼迪番禺店", region: "华南大区", area: "广佛小区", code: "GZ-IF-003", password: "N6C3W9K5", quota: 50, issued: 18, enabled: true },
+    { id: 4, name: "成都三和英菲尼迪高新店", region: "西区大区", area: "成渝小区", code: "CD-IF-008", password: "H2V7D5M8", quota: 36, issued: 22, enabled: true },
+    { id: 5, name: "杭州东昌英菲尼迪滨江店", region: "华东大区", area: "浙江小区", code: "HZ-IF-012", password: "Q9F4B7L2", quota: 48, issued: 30, enabled: true },
+    { id: 6, name: "深圳东风南方英菲尼迪宝安店", region: "华南大区", area: "深莞小区", code: "SZ-IF-015", password: "U5E8J3S7", quota: 44, issued: 28, enabled: true },
+    { id: 7, name: "南京文华英菲尼迪江宁店", region: "华东大区", area: "苏皖小区", code: "NJ-IF-009", password: "Z3M6A8R4", quota: 32, issued: 8, enabled: true },
+    { id: 8, name: "武汉三环英菲尼迪光谷店", region: "华北大区", area: "华中小区", code: "WH-IF-011", password: "B8K2Y6G5", quota: 38, issued: 16, enabled: true }
   ];
 
   const sampleVouchers = [
@@ -26,7 +26,18 @@
   function loadData() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        const stored = JSON.parse(raw);
+        let migrated = false;
+        stored.dealers.forEach((dealer) => {
+          if (typeof dealer.enabled !== "boolean") {
+            dealer.enabled = true;
+            migrated = true;
+          }
+        });
+        if (migrated) saveData(stored);
+        return stored;
+      }
     } catch (error) { /* fallback below */ }
     const data = initialData();
     saveData(data);
@@ -102,6 +113,15 @@
     function updateDashboard() {
       refreshCurrentDealer();
       if (!currentDealer) return;
+      if (!currentDealer.enabled) {
+        sessionStorage.removeItem(SESSION_KEY);
+        currentDealer = null;
+        app.classList.add("is-hidden");
+        loginView.classList.remove("is-hidden");
+        document.getElementById("loginPassword").value = "";
+        document.getElementById("loginError").textContent = "该经销商账号已被禁用，请联系活动管理员";
+        return;
+      }
       const remaining = Math.max(0, currentDealer.quota - currentDealer.issued);
       const times = Math.floor(remaining / 2);
       document.getElementById("dealerName").textContent = currentDealer.name.replace("英菲尼迪", "");
@@ -128,7 +148,11 @@
     const storedSession = sessionStorage.getItem(SESSION_KEY);
     if (storedSession) {
       const dealer = data.dealers.find((item) => item.code === storedSession);
-      if (dealer) enterApp(dealer);
+      if (dealer && dealer.enabled) enterApp(dealer);
+      if (dealer && !dealer.enabled) {
+        sessionStorage.removeItem(SESSION_KEY);
+        document.getElementById("loginError").textContent = "该经销商账号已被禁用，请联系活动管理员";
+      }
     }
 
     document.getElementById("fillDemo").addEventListener("click", () => {
@@ -142,9 +166,13 @@
       data = loadData();
       const code = document.getElementById("loginCode").value.trim().toUpperCase();
       const password = document.getElementById("loginPassword").value;
-      const dealer = data.dealers.find((item) => item.code.toUpperCase() === code && item.password === password);
-      if (!dealer) {
+      const dealer = data.dealers.find((item) => item.code.toUpperCase() === code);
+      if (!dealer || dealer.password !== password) {
         document.getElementById("loginError").textContent = "账号或密码不正确，请重新输入";
+        return;
+      }
+      if (!dealer.enabled) {
+        document.getElementById("loginError").textContent = "该经销商账号已被禁用，请联系活动管理员";
         return;
       }
       document.getElementById("loginError").textContent = "";
@@ -289,12 +317,16 @@
       body.innerHTML = visibleDealers.map((dealer, index) => `
         <tr>
           <td><span class="table-index">${String(index + 1).padStart(2, "0")}</span></td>
-          <td><div class="dealer-cell"><span>${escapeHtml(dealer.name.charAt(0))}</span><div><strong>${escapeHtml(dealer.name)}</strong><small>密码····${escapeHtml(dealer.password.slice(-2))}</small></div></div></td>
+          <td><div class="dealer-cell"><span>${escapeHtml(dealer.name.charAt(0))}</span><div><strong>${escapeHtml(dealer.name)}</strong><small>密码····${escapeHtml(dealer.password.slice(-2))}<em class="account-status ${dealer.enabled ? "is-enabled" : "is-disabled"}">${dealer.enabled ? "已启用" : "已禁用"}</em></small></div></div></td>
           <td>${escapeHtml(dealer.region)}</td><td>${escapeHtml(dealer.area)}</td>
           <td><code>${escapeHtml(dealer.code)}</code></td>
           <td><strong>${dealer.quota}</strong> 张 <button class="mini-edit" data-edit="${dealer.id}" title="调整配额">编辑</button></td>
           <td><div class="issued-cell"><strong>${dealer.issued}</strong> 张<span><i style="width:${Math.min(100, dealer.quota ? dealer.issued / dealer.quota * 100 : 0)}%"></i></span></div></td>
-          <td><button class="copy-action" data-copy="${dealer.id}"><svg viewBox="0 0 24 24"><path d="M8 8h11v11H8zM5 15V5h10"></path></svg>复制账号密码</button></td>
+          <td><div class="operation-actions">
+            <button class="action-button" data-account-edit="${dealer.id}">编辑</button>
+            <button class="action-button ${dealer.enabled ? "action-button--danger" : "action-button--success"}" data-toggle-status="${dealer.id}">${dealer.enabled ? "禁用" : "启用"}</button>
+            <button class="copy-action" data-copy="${dealer.id}"><svg viewBox="0 0 24 24"><path d="M8 8h11v11H8zM5 15V5h10"></path></svg>复制账号密码</button>
+          </div></td>
         </tr>`).join("");
       const empty = visibleDealers.length === 0;
       document.getElementById("tableEmpty").classList.toggle("is-hidden", !empty);
@@ -303,6 +335,8 @@
       document.getElementById("totalCount").textContent = visibleDealers.length;
       body.querySelectorAll("[data-copy]").forEach((button) => button.addEventListener("click", () => copyCredentials(Number(button.dataset.copy))));
       body.querySelectorAll("[data-edit]").forEach((button) => button.addEventListener("click", () => editQuota(Number(button.dataset.edit))));
+      body.querySelectorAll("[data-account-edit]").forEach((button) => button.addEventListener("click", () => editDealerAccount(Number(button.dataset.accountEdit))));
+      body.querySelectorAll("[data-toggle-status]").forEach((button) => button.addEventListener("click", () => toggleDealerStatus(Number(button.dataset.toggleStatus))));
     }
 
     function applyFilters() {
@@ -321,6 +355,53 @@
       catch (error) {
         openModal(`${modalHeader("账号信息", "复制经销商账号密码")}<div class="modal__body"><pre class="credential-block">${escapeHtml(text)}</pre><div class="modal__actions"><button class="button button--dark" data-close-modal>完成</button></div></div>`);
       }
+    }
+
+    function editDealerAccount(id) {
+      data = loadData();
+      const dealer = data.dealers.find((d) => d.id === id);
+      openModal(`${modalHeader("经销商账号", "编辑经销商")}
+        <form id="dealerEditForm" class="modal__body">
+          <p class="modal-copy">经销商基础信息仅供查看，当前仅支持修改登录密码。</p>
+          <div class="dealer-info-grid">
+            <div><span>经销商名称</span><strong>${escapeHtml(dealer.name)}</strong></div>
+            <div><span>经销商编码</span><strong>${escapeHtml(dealer.code)}</strong></div>
+            <div><span>大区</span><strong>${escapeHtml(dealer.region)}</strong></div>
+            <div><span>小区</span><strong>${escapeHtml(dealer.area)}</strong></div>
+            <div><span>账号状态</span><strong class="info-status ${dealer.enabled ? "is-enabled" : "is-disabled"}">${dealer.enabled ? "已启用" : "已禁用"}</strong></div>
+          </div>
+          <label class="field"><span>登录密码</span><div class="password-field"><input id="dealerPasswordInput" type="password" minlength="8" maxlength="20" value="${escapeHtml(dealer.password)}" required /><button id="toggleDealerPassword" type="button" class="text-button">显示</button></div></label>
+          <p class="input-hint">密码需为 8–20 位字母与数字组合，保存后立即同步至发券端。</p>
+          <p id="dealerEditError" class="form-error"></p>
+          <div class="modal__actions"><button type="button" class="button button--ghost" data-close-modal>取消</button><button type="submit" class="button button--dark">保存密码</button></div>
+        </form>`);
+      document.getElementById("toggleDealerPassword").addEventListener("click", () => {
+        const input = document.getElementById("dealerPasswordInput");
+        input.type = input.type === "password" ? "text" : "password";
+        document.getElementById("toggleDealerPassword").textContent = input.type === "password" ? "显示" : "隐藏";
+      });
+      document.getElementById("dealerEditForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const nextPassword = document.getElementById("dealerPasswordInput").value.trim();
+        if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$/.test(nextPassword)) {
+          document.getElementById("dealerEditError").textContent = "请输入 8–20 位字母与数字组合";
+          return;
+        }
+        dealer.password = nextPassword;
+        saveData(data);
+        closeModal();
+        applyFilters();
+        showToast("经销商密码已更新", "success");
+      });
+    }
+
+    function toggleDealerStatus(id) {
+      data = loadData();
+      const dealer = data.dealers.find((d) => d.id === id);
+      dealer.enabled = !dealer.enabled;
+      saveData(data);
+      applyFilters();
+      showToast(`${dealer.name}已${dealer.enabled ? "启用" : "禁用"}`, dealer.enabled ? "success" : "error");
     }
 
     function editQuota(id) {
