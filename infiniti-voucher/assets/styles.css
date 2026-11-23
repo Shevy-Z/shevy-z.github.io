@@ -74,8 +74,9 @@ svg { width: 1.2rem; height: 1.2rem; fill: none; stroke: currentColor; stroke-wi
 .mobile-brand { display: none; margin-bottom: 4rem; }
 .field { display: block; margin: 1.25rem 0; }
 .field > span { display: block; margin-bottom: .55rem; font-size: .84rem; font-weight: 600; }
-.field input, .filter-control input { width: 100%; height: 3.25rem; border: 1px solid #d9dade; border-radius: 0; background: white; padding: 0 1rem; outline: none; transition: .2s ease; }
-.field input:focus, .filter-control input:focus, .search-control:focus-within { border-color: #1c1d22; box-shadow: 0 0 0 3px rgba(17,18,22,.07); }
+.field input, .field select, .filter-control input { width: 100%; height: 3.25rem; border: 1px solid #d9dade; border-radius: 0; background: white; padding: 0 1rem; outline: none; transition: .2s ease; }
+.field select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, #777 50%), linear-gradient(135deg, #777 50%, transparent 50%); background-position: calc(100% - 18px) 48%, calc(100% - 13px) 48%; background-size: 5px 5px; background-repeat: no-repeat; }
+.field input:focus, .field select:focus, .filter-control input:focus, .search-control:focus-within { border-color: #1c1d22; box-shadow: 0 0 0 3px rgba(17,18,22,.07); }
 .password-field { position: relative; }
 .password-field input { padding-right: 4.5rem; }
 .text-button { position: absolute; right: .8rem; top: 50%; transform: translateY(-50%); border: 0; background: none; color: var(--muted); font-size: .8rem; }
@@ -164,6 +165,14 @@ svg { width: 1.2rem; height: 1.2rem; fill: none; stroke: currentColor; stroke-wi
 .modal__body { padding: 1.5rem 2rem 2rem; }
 .modal-copy { margin: 0 0 1.2rem; color: var(--muted); font-size: .85rem; line-height: 1.7; }
 .modal__actions { display: flex; justify-content: flex-end; gap: .7rem; margin-top: 1.7rem; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-grid .field { margin: 0; }
+.form-grid .field--full { grid-column: 1 / -1; }
+.file-drop { display: block; padding: 1.3rem; border: 1px dashed #bfc0c5; background: #fafafa; }
+.file-drop input { width: 100%; height: auto; padding: 0; border: 0; background: transparent; font-size: .78rem; }
+.file-drop strong, .file-drop small { display: block; }
+.file-drop strong { margin-bottom: .45rem; font-size: .82rem; }
+.file-drop small { margin-top: .55rem; color: var(--muted); font-size: .7rem; line-height: 1.6; }
 .issue-notice { display: flex; flex-direction: column; gap: .25rem; padding: 1rem; border-left: 3px solid var(--warm); background: #f6f3ef; }
 .issue-notice strong { font-size: .85rem; }
 .issue-notice span { color: var(--muted); font-size: .75rem; }
@@ -226,6 +235,8 @@ svg { width: 1.2rem; height: 1.2rem; fill: none; stroke: currentColor; stroke-wi
 .admin-title { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 2rem; }
 .admin-title h1 { margin: 0; font-size: 2.1rem; font-weight: 600; letter-spacing: -.04em; }
 .admin-title > div > p:last-child { margin: .6rem 0 0; color: var(--muted); font-size: .82rem; }
+.admin-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .55rem; max-width: 680px; }
+.admin-actions .button { min-height: 2.7rem; padding: 0 .9rem; font-size: .76rem; }
 .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .8rem; margin-bottom: 1rem; }
 .metric-card { min-height: 135px; padding: 1.2rem 1.3rem; background: white; border: 1px solid #e9e9eb; }
 .metric-card span, .metric-card small { display: block; color: var(--muted); font-size: .7rem; }
@@ -334,6 +345,7 @@ td code { padding: .25rem .4rem; background: #f0f0f1; color: #38393e; font-size:
   .admin-topbar > div:first-of-type { display: none; }
   .admin-main { padding: 1.2rem; }
   .admin-title { align-items: flex-start; flex-direction: column; gap: 1rem; }
+  .admin-actions { width: 100%; justify-content: flex-start; }
   .metric-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
@@ -350,6 +362,9 @@ td code { padding: .25rem .4rem; background: #f0f0f1; color: #38393e; font-size:
   .issue-card__top { align-items: flex-start; }
   .modal__header, .modal__body { padding-left: 1.2rem; padding-right: 1.2rem; }
   .modal__actions .button { flex: 1; padding: 0 .6rem; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-grid .field--full { grid-column: auto; }
+  .admin-actions .button { flex: 1 1 calc(50% - .55rem); }
   .metric-grid { grid-template-columns: 1fr 1fr; gap: .55rem; }
   .metric-card { min-height: 120px; padding: 1rem; }
   .metric-card strong { font-size: 1.55rem; }

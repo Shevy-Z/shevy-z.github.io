@@ -63,6 +63,51 @@
   function isValidVin(value) { return /^[A-HJ-NPR-Z0-9]{17}$/.test(value); }
   function formatNumber(value) { return new Intl.NumberFormat("zh-CN").format(value); }
 
+  function randomPassword() {
+    const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+    const numbers = "23456789";
+    const pool = letters + numbers;
+    let value = letters[Math.floor(Math.random() * letters.length)] + numbers[Math.floor(Math.random() * numbers.length)];
+    while (value.length < 8) value += pool[Math.floor(Math.random() * pool.length)];
+    return value.split("").sort(() => Math.random() - .5).join("");
+  }
+
+  function csvCell(value) {
+    const text = String(value == null ? "" : value);
+    return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  }
+
+  function downloadCsv(filename, rows) {
+    const content = "\uFEFF" + rows.map((row) => row.map(csvCell).join(",")).join("\r\n");
+    const url = URL.createObjectURL(new Blob([content], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function parseCsv(text) {
+    const rows = [];
+    let row = [], field = "", quoted = false;
+    for (let index = 0; index < text.length; index += 1) {
+      const character = text[index];
+      if (character === '"') {
+        if (quoted && text[index + 1] === '"') { field += '"'; index += 1; }
+        else quoted = !quoted;
+      } else if (character === "," && !quoted) {
+        row.push(field); field = "";
+      } else if ((character === "\n" || character === "\r") && !quoted) {
+        if (character === "\r" && text[index + 1] === "\n") index += 1;
+        row.push(field); rows.push(row); row = []; field = "";
+      } else field += character;
+    }
+    if (field || row.length) { row.push(field); rows.push(row); }
+    return rows;
+  }
+
   function showToast(message, type) {
     const toast = document.getElementById("toast");
     if (!toast) return;
@@ -300,6 +345,7 @@
   function initAdmin() {
     let data = loadData();
     let visibleDealers = data.dealers.slice();
+    const importHeaders = ["经销商名称", "大区", "小区", "经销商编码", "可发券数量", "初始密码", "状态"];
 
     function renderMetrics() {
       data = loadData();
@@ -427,13 +473,136 @@
       });
     }
 
+    function openAddDealerModal() {
+      const initialPassword = randomPassword();
+      openModal(`${modalHeader("经销商管理", "新增经销商")}
+        <form id="addDealerForm" class="modal__body">
+          <p class="modal-copy">新增后，经销商可立即使用编码和初始密码登录发券端。</p>
+          <div class="form-grid">
+            <label class="field field--full"><span>经销商名称</span><input id="newDealerName" maxlength="60" required placeholder="请输入经销商名称" /></label>
+            <label class="field"><span>大区</span><input id="newDealerRegion" maxlength="30" required placeholder="例如：华东大区" /></label>
+            <label class="field"><span>小区</span><input id="newDealerArea" maxlength="30" required placeholder="例如：上海小区" /></label>
+            <label class="field"><span>经销商编码</span><input id="newDealerCode" maxlength="24" required placeholder="例如：SH-IF-021" /></label>
+            <label class="field"><span>可发券数量</span><input id="newDealerQuota" type="number" min="0" step="2" value="20" required /></label>
+            <label class="field"><span>初始密码</span><div class="password-field"><input id="newDealerPassword" type="password" minlength="8" maxlength="20" value="${initialPassword}" required /><button id="toggleNewDealerPassword" type="button" class="text-button">显示</button></div></label>
+            <label class="field"><span>账号状态</span><select id="newDealerStatus"><option value="enabled">启用</option><option value="disabled">禁用</option></select></label>
+          </div>
+          <p id="addDealerError" class="form-error"></p>
+          <div class="modal__actions"><button type="button" class="button button--ghost" data-close-modal>取消</button><button type="submit" class="button button--dark">确认新增</button></div>
+        </form>`, "wide");
+      document.getElementById("newDealerCode").addEventListener("input", (event) => { event.target.value = event.target.value.toUpperCase(); });
+      document.getElementById("toggleNewDealerPassword").addEventListener("click", () => {
+        const input = document.getElementById("newDealerPassword");
+        input.type = input.type === "password" ? "text" : "password";
+        document.getElementById("toggleNewDealerPassword").textContent = input.type === "password" ? "显示" : "隐藏";
+      });
+      document.getElementById("addDealerForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        data = loadData();
+        const error = document.getElementById("addDealerError");
+        const name = document.getElementById("newDealerName").value.trim();
+        const region = document.getElementById("newDealerRegion").value.trim();
+        const area = document.getElementById("newDealerArea").value.trim();
+        const code = document.getElementById("newDealerCode").value.trim().toUpperCase();
+        const quota = Number(document.getElementById("newDealerQuota").value);
+        const password = document.getElementById("newDealerPassword").value.trim();
+        if (!name || !region || !area) return void (error.textContent = "请完整填写经销商名称、大区和小区");
+        if (!/^[A-Z0-9-]{3,24}$/.test(code)) return void (error.textContent = "经销商编码仅支持 3–24 位大写字母、数字和连字符");
+        if (data.dealers.some((dealer) => dealer.code.toUpperCase() === code)) return void (error.textContent = "该经销商编码已存在，请更换编码");
+        if (!Number.isInteger(quota) || quota < 0 || quota % 2 !== 0) return void (error.textContent = "可发券数量请输入不小于 0 的偶数");
+        if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$/.test(password)) return void (error.textContent = "初始密码需为 8–20 位字母与数字组合");
+        data.dealers.push({
+          id: Math.max(0, ...data.dealers.map((dealer) => Number(dealer.id) || 0)) + 1,
+          name, region, area, code, password, quota, issued: 0,
+          enabled: document.getElementById("newDealerStatus").value === "enabled",
+        });
+        saveData(data);
+        closeModal();
+        renderMetrics();
+        applyFilters();
+        showToast("经销商新增成功", "success");
+      });
+    }
+
+    function openImportModal() {
+      openModal(`${modalHeader("经销商管理", "导入经销商名单")}
+        <form id="dealerImportForm" class="modal__body">
+          <p class="modal-copy">请先下载 CSV 模板，按模板填写后导入。全部数据校验通过后才会写入名单。</p>
+          <label class="file-drop"><strong>选择 CSV 名单文件</strong><input id="dealerImportFile" type="file" accept=".csv,text/csv" required /><small>必填列：经销商名称、大区、小区、经销商编码、可发券数量。初始密码为空时自动生成，状态为空时默认启用。</small></label>
+          <p id="dealerImportError" class="form-error"></p>
+          <div class="modal__actions"><button type="button" class="button button--ghost" data-close-modal>取消</button><button type="submit" class="button button--dark">确认导入</button></div>
+        </form>`);
+      document.getElementById("dealerImportForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const error = document.getElementById("dealerImportError");
+        const file = document.getElementById("dealerImportFile").files[0];
+        if (!file) return void (error.textContent = "请选择需要导入的 CSV 文件");
+        try {
+          const rows = parseCsv(await file.text()).filter((row) => row.some((cell) => String(cell).trim()));
+          if (rows.length < 2) throw new Error("文件中没有可导入的经销商数据");
+          const headers = rows[0].map((value) => String(value).replace(/^\uFEFF/, "").trim());
+          const indexes = Object.fromEntries(importHeaders.map((header) => [header, headers.indexOf(header)]));
+          const missing = importHeaders.slice(0, 5).filter((header) => indexes[header] < 0);
+          if (missing.length) throw new Error(`缺少列：${missing.join("、")}`);
+          data = loadData();
+          const codes = new Set(data.dealers.map((dealer) => dealer.code.toUpperCase()));
+          let nextId = Math.max(0, ...data.dealers.map((dealer) => Number(dealer.id) || 0)) + 1;
+          const additions = [];
+          const problems = [];
+          rows.slice(1).forEach((row, offset) => {
+            const line = offset + 2;
+            const get = (header) => indexes[header] < 0 ? "" : String(row[indexes[header]] || "").trim();
+            const name = get("经销商名称"), region = get("大区"), area = get("小区"), code = get("经销商编码").toUpperCase();
+            const quota = Number(get("可发券数量"));
+            const password = get("初始密码") || randomPassword();
+            const status = get("状态");
+            let message = "";
+            if (!name || !region || !area || !code) message = "必填信息不完整";
+            else if (!/^[A-Z0-9-]{3,24}$/.test(code)) message = "经销商编码格式不正确";
+            else if (codes.has(code)) message = "经销商编码重复";
+            else if (!Number.isInteger(quota) || quota < 0 || quota % 2 !== 0) message = "可发券数量须为不小于 0 的偶数";
+            else if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$/.test(password)) message = "初始密码须为 8–20 位字母与数字组合";
+            else if (status && !["启用", "已启用", "禁用", "已禁用"].includes(status)) message = "状态仅支持启用或禁用";
+            if (message) problems.push(`第 ${line} 行：${message}`);
+            else {
+              codes.add(code);
+              additions.push({ id: nextId++, name, region, area, code, password, quota, issued: 0, enabled: !["禁用", "已禁用"].includes(status) });
+            }
+          });
+          if (problems.length) throw new Error(problems.slice(0, 3).join("；") + (problems.length > 3 ? `；另有 ${problems.length - 3} 项错误` : ""));
+          if (!additions.length) throw new Error("文件中没有可导入的经销商数据");
+          data.dealers.push(...additions);
+          saveData(data);
+          closeModal();
+          renderMetrics();
+          applyFilters();
+          showToast(`成功导入 ${additions.length} 家经销商`, "success");
+        } catch (importError) { error.textContent = importError.message || "导入失败，请检查文件格式"; }
+      });
+    }
+
+    function downloadTemplate() {
+      downloadCsv("英菲尼迪经销商名单导入模板.csv", [importHeaders]);
+      showToast("经销商名单模板已下载", "success");
+    }
+
+    function exportDealers() {
+      data = loadData();
+      const rows = [importHeaders, ...data.dealers.map((dealer) => [dealer.name, dealer.region, dealer.area, dealer.code, dealer.quota, dealer.password, dealer.enabled ? "启用" : "禁用"])];
+      downloadCsv("英菲尼迪经销商名单.csv", rows);
+      showToast("经销商名单已导出", "success");
+    }
+
     document.getElementById("filterBtn").addEventListener("click", applyFilters);
     ["dealerFilter", "codeFilter"].forEach((id) => document.getElementById(id).addEventListener("keydown", (event) => { if (event.key === "Enter") applyFilters(); }));
     document.getElementById("clearFilter").addEventListener("click", () => {
       ["dealerFilter", "codeFilter"].forEach((id) => { document.getElementById(id).value = ""; });
       applyFilters();
     });
-    document.getElementById("exportBtn").addEventListener("click", () => showToast("经销商名单已导出（演示）", "success"));
+    document.getElementById("templateBtn").addEventListener("click", downloadTemplate);
+    document.getElementById("importBtn").addEventListener("click", openImportModal);
+    document.getElementById("exportBtn").addEventListener("click", exportDealers);
+    document.getElementById("addDealerBtn").addEventListener("click", openAddDealerModal);
     document.getElementById("mobileMenu").addEventListener("click", () => document.querySelector(".sidebar").classList.toggle("is-open"));
     window.addEventListener("storage", () => { renderMetrics(); applyFilters(); });
     renderMetrics();
