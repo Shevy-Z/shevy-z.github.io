@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0b0d" />
+    <title>经销商管理后台 | INFINITI</title>
+    <link rel="stylesheet" href="../assets/styles.css" />
+  </head>
+  <body data-page="admin" class="admin-body">
+    <aside class="sidebar">
+      <a class="brand-mark brand-mark--white" href="../"><span class="brand-emblem"><i></i></span><strong>INFINITI</strong></a>
+      <nav>
+        <a class="is-active" href="./"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 5h6v6H4zM14 5h6v6h-6zM4 15h6v4H4zM14 15h6v4h-6z"></path></svg></span>经销商管理</a>
+        <a href="#records"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M6 4h12v16H6zM9 8h6M9 12h6M9 16h4"></path></svg></span>发券记录</a>
+        <a href="#settings"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"></path></svg></span>系统设置</a>
+      </nav>
+      <div class="sidebar__bottom"><span>活动状态</span><strong><i></i>进行中</strong><small>2026 取送车权益活动</small></div>
+    </aside>
+    <div class="admin-shell">
+      <header class="admin-topbar">
+        <button class="mobile-menu" id="mobileMenu" type="button" aria-label="打开菜单"><span></span><span></span><span></span></button>
+        <div><span class="breadcrumb">活动管理 /</span> 经销商管理</div>
+        <div class="admin-user"><span class="admin-user__avatar">A</span><div><strong>活动管理员</strong><small>Administrator</small></div></div>
+      </header>
+      <main class="admin-main">
+        <section class="admin-title">
+          <div><p class="eyebrow">DEALER MANAGEMENT</p><h1>经销商管理</h1><p>管理经销商账号与发券配额，密码更新会与发券端同步。</p></div>
+          <button id="exportBtn" class="button button--outline" type="button"><svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4M5 20h14"></path></svg>导出名单</button>
+        </section>
+        <section class="metric-grid">
+          <article class="metric-card"><span>经销商总数</span><strong id="metricDealers">0</strong><small>覆盖全国 4 个大区</small></article>
+          <article class="metric-card"><span>总发券配额</span><strong id="metricQuota">0</strong><small>本期活动配置数量</small></article>
+          <article class="metric-card"><span>已发券数</span><strong id="metricIssued">0</strong><small id="metricRate">整体发放率 0%</small></article>
+          <article class="metric-card metric-card--dark"><span>剩余可发</span><strong id="metricRemaining">0</strong><small>每次向同一 VIN 发 2 张</small></article>
+        </section>
+        <section class="table-panel">
+          <div class="filter-bar">
+            <label class="search-control"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m15.5 15.5 5 5"></path></svg><input id="dealerFilter" placeholder="搜索经销商名称" /></label>
+            <label class="filter-control"><span>经销商编码</span><input id="codeFilter" placeholder="全部编码" /></label>
+            <label class="filter-control"><span>SA 账号</span><input id="saFilter" placeholder="请输入 SA 账号" /></label>
+            <button id="filterBtn" class="button button--dark" type="button">筛选</button>
+            <button id="clearFilter" class="button button--ghost" type="button">重置</button>
+          </div>
+          <div class="table-heading"><div><h2>经销商列表</h2><span>共 <b id="resultCount">0</b> 家经销商</span></div><span class="sync-note"><i></i>数据已同步</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>序号</th><th>经销商名称</th><th>大区</th><th>小区</th><th>编码</th><th>SA 账号</th><th>可发券数量</th><th>已发券数量</th><th>操作</th></tr></thead>
+              <tbody id="dealerTableBody"></tbody>
+            </table>
+            <div id="tableEmpty" class="table-empty is-hidden"><div class="empty-icon">∅</div><strong>未找到匹配的经销商</strong><p>请调整筛选条件后重试</p></div>
+          </div>
+          <div class="pagination"><span>显示 1 - <b id="pageCount">0</b> 条，共 <b id="totalCount">0</b> 条</span><div><button disabled>上一页</button><button class="is-current">1</button><button disabled>下一页</button></div></div>
+        </section>
+      </main>
+    </div>
+    <div id="modalRoot"></div>
+    <div id="toast" class="toast" role="status"></div>
+    <script src="../assets/app.js"></script>
+  </body>
+</html>

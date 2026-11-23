@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0b0d" />
+    <title>经销商发券中心 | INFINITI</title>
+    <link rel="stylesheet" href="../assets/styles.css" />
+  </head>
+  <body data-page="dealer">
+    <section id="loginView" class="login-page">
+      <div class="login-visual">
+        <div class="login-visual__content">
+          <div class="brand-mark brand-mark--white"><span class="brand-emblem"><i></i></span><strong>INFINITI</strong></div>
+          <p class="eyebrow">经销商服务平台</p>
+          <h1>让每一次取送，<br />都更从容。</h1>
+          <p>统一管理取送车券发放与查询，为车主提供精致、高效的服务体验。</p>
+        </div>
+        <span class="login-visual__line"></span>
+      </div>
+      <div class="login-panel">
+        <form id="loginForm" class="login-form">
+          <div class="mobile-brand brand-mark"><span class="brand-emblem"><i></i></span><strong>INFINITI</strong></div>
+          <p class="eyebrow">欢迎使用</p>
+          <h2>经销商登录</h2>
+          <p class="subtle">请使用经销商编码与密码登录</p>
+          <label class="field">
+            <span>经销商账号</span>
+            <input id="loginCode" autocomplete="username" value="SH-IF-001" placeholder="请输入经销商编码" required />
+          </label>
+          <label class="field">
+            <span>登录密码</span>
+            <div class="password-field">
+              <input id="loginPassword" type="password" autocomplete="current-password" value="A7K9M2Q4" placeholder="请输入密码" required />
+              <button type="button" class="text-button" data-toggle-password="loginPassword">显示</button>
+            </div>
+          </label>
+          <p id="loginError" class="form-error" role="alert"></p>
+          <button class="button button--dark button--full" type="submit">登录</button>
+          <div class="demo-account">
+            <span>演示账号</span>
+            <button type="button" id="fillDemo">上海永达·浦东店 <b>SH-IF-001</b></button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <div id="dealerApp" class="app-shell is-hidden">
+      <header class="topbar">
+        <a class="brand-mark" href="../"><span class="brand-emblem"><i></i></span><strong>INFINITI</strong></a>
+        <div class="topbar__right">
+          <div class="user-chip">
+            <span class="user-chip__avatar" id="dealerInitial">永</span>
+            <div><small>当前用户</small><strong id="dealerName">—</strong></div>
+          </div>
+          <button class="topbar-action" id="changePasswordBtn">修改密码</button>
+          <button class="topbar-action topbar-action--muted" id="logoutBtn">退出登录</button>
+        </div>
+      </header>
+
+      <main class="dealer-main">
+        <section class="welcome-row">
+          <div>
+            <p class="eyebrow">取送车券中心</p>
+            <h1>上午好，<span id="welcomeDealer">—</span></h1>
+            <p>查询或发放车主取送车权益券。</p>
+          </div>
+          <div class="quota-summary">
+            <span>本期剩余</span>
+            <strong><b id="remainingTimes">0</b> 次</strong>
+            <small><span id="remainingCards">0</span> 张券，每次发放 2 张</small>
+          </div>
+        </section>
+
+        <section class="function-card search-card">
+          <div class="section-heading">
+            <span class="section-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m15.5 15.5 5 5"></path></svg>
+            </span>
+            <div><p class="eyebrow">查询记录</p><h2>查券</h2></div>
+          </div>
+          <p class="section-copy">输入车辆 VIN 码，查看该车辆的取送车券发放记录与当前状态。</p>
+          <form id="searchForm" class="inline-form">
+            <label class="field field--inline"><span>VIN 码</span><input id="searchVin" maxlength="17" autocomplete="off" placeholder="例如：LGBM4AE49MD012345" /></label>
+            <button class="button button--dark" type="submit">查询</button>
+          </form>
+          <p class="input-hint">VIN 码为 17 位字母与数字组合，不含 I、O、Q</p>
+        </section>
+
+        <section class="function-card issue-card">
+          <div class="issue-card__top">
+            <div class="section-heading">
+              <span class="section-icon section-icon--warm" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M4 7.5h16v12H4z"></path><path d="M4 11.5h16M8 7.5V5h8v2.5"></path></svg>
+              </span>
+              <div><p class="eyebrow">发放权益</p><h2>发券</h2></div>
+            </div>
+            <span class="availability" id="availabilityBadge">可发放</span>
+          </div>
+          <div class="voucher-product">
+            <div class="voucher-visual">
+              <div class="voucher-visual__brand"><span class="brand-emblem brand-emblem--small"><i></i></span> INFINITI</div>
+              <span class="voucher-visual__type">PREMIUM SERVICE</span>
+              <div><strong>取送车服务券</strong><small>VALET PICK-UP & DELIVERY</small></div>
+              <span class="voucher-visual__rule">单次发放 2 张</span>
+            </div>
+            <div class="voucher-info">
+              <div><h3>英菲尼迪取送车券</h3><p>适用于车主到店维保的取车及送车服务。同一 VIN 每期限发 2 张。</p></div>
+              <div class="voucher-info__bottom">
+                <span>可发券次数 <b id="cardTimes">0</b></span>
+                <button id="issueBtn" class="button button--dark" type="button">发券</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="demo-bar">
+          <div><span class="demo-dot"></span><strong>原型演示</strong><small>发券结果模拟</small></div>
+          <label><span>下次发券状态</span><select id="demoScenario"><option value="auto">自动判断</option><option value="success">成功</option><option value="duplicate">该 VIN 已发过 2 张</option><option value="quota">可发券次数不足</option></select></label>
+          <button id="resetDemo" class="text-link" type="button">重置演示数据</button>
+        </aside>
+      </main>
+      <footer class="site-footer"><span>© 2026 INFINITI 取送车券管理平台</span><span>经销商编码：<b id="footerCode">—</b></span></footer>
+    </div>
+
+    <div id="modalRoot"></div>
+    <div id="toast" class="toast" role="status"></div>
+    <script src="../assets/app.js"></script>
+  </body>
+</html>

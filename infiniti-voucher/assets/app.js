@@ -1,0 +1,366 @@
+(function () {
+  "use strict";
+
+  const STORAGE_KEY = "infiniti-voucher-prototype-v1";
+  const SESSION_KEY = "infiniti-dealer-session";
+  const sampleDealers = [
+    { id: 1, name: "上海永达英菲尼迪浦东店", region: "华东大区", area: "上海小区", code: "SH-IF-001", sa: "SA-SH-018", password: "A7K9M2Q4", quota: 40, issued: 12 },
+    { id: 2, name: "北京运通英菲尼迪亦庄店", region: "华北大区", area: "北京小区", code: "BJ-IF-006", sa: "SA-BJ-032", password: "R4T8P2X6", quota: 60, issued: 36 },
+    { id: 3, name: "广州长悦英菲尼迪番禺店", region: "华南大区", area: "广佛小区", code: "GZ-IF-003", sa: "SA-GZ-027", password: "N6C3W9K5", quota: 50, issued: 18 },
+    { id: 4, name: "成都三和英菲尼迪高新店", region: "西区大区", area: "成渝小区", code: "CD-IF-008", sa: "SA-CD-014", password: "H2V7D5M8", quota: 36, issued: 22 },
+    { id: 5, name: "杭州东昌英菲尼迪滨江店", region: "华东大区", area: "浙江小区", code: "HZ-IF-012", sa: "SA-HZ-046", password: "Q9F4B7L2", quota: 48, issued: 30 },
+    { id: 6, name: "深圳东风南方英菲尼迪宝安店", region: "华南大区", area: "深莞小区", code: "SZ-IF-015", sa: "SA-SZ-051", password: "U5E8J3S7", quota: 44, issued: 28 },
+    { id: 7, name: "南京文华英菲尼迪江宁店", region: "华东大区", area: "苏皖小区", code: "NJ-IF-009", sa: "SA-NJ-021", password: "Z3M6A8R4", quota: 32, issued: 8 },
+    { id: 8, name: "武汉三环英菲尼迪光谷店", region: "华北大区", area: "华中小区", code: "WH-IF-011", sa: "SA-WH-038", password: "B8K2Y6G5", quota: 38, issued: 16 }
+  ];
+
+  const sampleVouchers = [
+    { id: "VC20261108001", dealerCode: "SH-IF-001", vin: "LGBM4AE49MD012345", status: "unused", issuedAt: "2026-11-08 10:24", validUntil: "2027-05-07" },
+    { id: "VC20261108002", dealerCode: "SH-IF-001", vin: "LGBM4AE49MD012345", status: "redeemed", issuedAt: "2026-11-08 10:24", validUntil: "2027-05-07", redeemedAt: "2026-11-18 14:10" }
+  ];
+
+  function initialData() {
+    return { dealers: JSON.parse(JSON.stringify(sampleDealers)), vouchers: JSON.parse(JSON.stringify(sampleVouchers)), updatedAt: Date.now() };
+  }
+
+  function loadData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (error) { /* fallback below */ }
+    const data = initialData();
+    saveData(data);
+    return data;
+  }
+
+  function saveData(data) {
+    data.updatedAt = Date.now();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function resetData() {
+    const data = initialData();
+    saveData(data);
+    return data;
+  }
+
+  function escapeHtml(value) {
+    return String(value == null ? "" : value).replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#039;", '"': "&quot;" })[char]);
+  }
+
+  function normalizeVin(value) { return String(value || "").trim().toUpperCase(); }
+  function isValidVin(value) { return /^[A-HJ-NPR-Z0-9]{17}$/.test(value); }
+  function formatNumber(value) { return new Intl.NumberFormat("zh-CN").format(value); }
+
+  function showToast(message, type) {
+    const toast = document.getElementById("toast");
+    if (!toast) return;
+    toast.className = `toast is-visible ${type ? `toast--${type}` : ""}`;
+    toast.innerHTML = `<span>${type === "error" ? "!" : "✓"}</span>${escapeHtml(message)}`;
+    window.clearTimeout(showToast.timer);
+    showToast.timer = window.setTimeout(() => { toast.classList.remove("is-visible"); }, 2800);
+  }
+
+  function closeModal() {
+    const root = document.getElementById("modalRoot");
+    if (root) root.innerHTML = "";
+    document.body.classList.remove("modal-open");
+  }
+
+  function openModal(content, size) {
+    const root = document.getElementById("modalRoot");
+    if (!root) return;
+    root.innerHTML = `<div class="modal-backdrop"><section class="modal ${size === "wide" ? "modal--wide" : ""}" role="dialog" aria-modal="true">${content}</section></div>`;
+    document.body.classList.add("modal-open");
+    root.querySelectorAll("[data-close-modal]").forEach((button) => button.addEventListener("click", closeModal));
+    root.querySelector(".modal-backdrop").addEventListener("click", (event) => { if (event.target.classList.contains("modal-backdrop")) closeModal(); });
+  }
+
+  function modalHeader(eyebrow, title) {
+    return `<header class="modal__header"><div><p class="eyebrow">${escapeHtml(eyebrow)}</p><h2>${escapeHtml(title)}</h2></div><button class="modal__close" data-close-modal aria-label="关闭">×</button></header>`;
+  }
+
+  function initDealer() {
+    let data = loadData();
+    let currentDealer = null;
+    const loginView = document.getElementById("loginView");
+    const app = document.getElementById("dealerApp");
+
+    document.querySelectorAll("[data-toggle-password]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const input = document.getElementById(button.dataset.togglePassword);
+        input.type = input.type === "password" ? "text" : "password";
+        button.textContent = input.type === "password" ? "显示" : "隐藏";
+      });
+    });
+
+    function refreshCurrentDealer() {
+      data = loadData();
+      if (currentDealer) currentDealer = data.dealers.find((d) => d.code === currentDealer.code) || null;
+    }
+
+    function updateDashboard() {
+      refreshCurrentDealer();
+      if (!currentDealer) return;
+      const remaining = Math.max(0, currentDealer.quota - currentDealer.issued);
+      const times = Math.floor(remaining / 2);
+      document.getElementById("dealerName").textContent = currentDealer.name.replace("英菲尼迪", "");
+      document.getElementById("welcomeDealer").textContent = currentDealer.name;
+      document.getElementById("dealerInitial").textContent = currentDealer.name.charAt(0);
+      document.getElementById("remainingTimes").textContent = times;
+      document.getElementById("remainingCards").textContent = remaining;
+      document.getElementById("cardTimes").textContent = times;
+      document.getElementById("footerCode").textContent = currentDealer.code;
+      const button = document.getElementById("issueBtn");
+      button.disabled = times < 1;
+      document.getElementById("availabilityBadge").textContent = times < 1 ? "配额已用完" : "可发放";
+      document.getElementById("availabilityBadge").classList.toggle("is-disabled", times < 1);
+    }
+
+    function enterApp(dealer) {
+      currentDealer = dealer;
+      sessionStorage.setItem(SESSION_KEY, dealer.code);
+      loginView.classList.add("is-hidden");
+      app.classList.remove("is-hidden");
+      updateDashboard();
+    }
+
+    const storedSession = sessionStorage.getItem(SESSION_KEY);
+    if (storedSession) {
+      const dealer = data.dealers.find((item) => item.code === storedSession);
+      if (dealer) enterApp(dealer);
+    }
+
+    document.getElementById("fillDemo").addEventListener("click", () => {
+      document.getElementById("loginCode").value = "SH-IF-001";
+      const demo = loadData().dealers.find((d) => d.code === "SH-IF-001");
+      document.getElementById("loginPassword").value = demo ? demo.password : "A7K9M2Q4";
+    });
+
+    document.getElementById("loginForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      data = loadData();
+      const code = document.getElementById("loginCode").value.trim().toUpperCase();
+      const password = document.getElementById("loginPassword").value;
+      const dealer = data.dealers.find((item) => item.code.toUpperCase() === code && item.password === password);
+      if (!dealer) {
+        document.getElementById("loginError").textContent = "账号或密码不正确，请重新输入";
+        return;
+      }
+      document.getElementById("loginError").textContent = "";
+      enterApp(dealer);
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      sessionStorage.removeItem(SESSION_KEY);
+      currentDealer = null;
+      app.classList.add("is-hidden");
+      loginView.classList.remove("is-hidden");
+      document.getElementById("loginPassword").value = "";
+    });
+
+    document.getElementById("changePasswordBtn").addEventListener("click", () => {
+      openModal(`${modalHeader("账号安全", "修改登录密码")}
+        <form id="passwordForm" class="modal__body">
+          <p class="modal-copy">修改后的密码将同步至经销商管理后台。</p>
+          <label class="field"><span>当前密码</span><input id="oldPassword" type="password" required placeholder="请输入当前密码" /></label>
+          <label class="field"><span>新密码</span><input id="newPassword" type="password" minlength="8" maxlength="20" required placeholder="8–20 位字母与数字" /></label>
+          <label class="field"><span>确认新密码</span><input id="confirmPassword" type="password" minlength="8" maxlength="20" required placeholder="请再次输入新密码" /></label>
+          <p id="passwordError" class="form-error"></p>
+          <div class="modal__actions"><button type="button" class="button button--ghost" data-close-modal>取消</button><button class="button button--dark" type="submit">确认修改</button></div>
+        </form>`);
+      document.getElementById("passwordForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const oldValue = document.getElementById("oldPassword").value;
+        const nextValue = document.getElementById("newPassword").value;
+        const confirmValue = document.getElementById("confirmPassword").value;
+        const error = document.getElementById("passwordError");
+        if (oldValue !== currentDealer.password) return void (error.textContent = "当前密码不正确");
+        if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$/.test(nextValue)) return void (error.textContent = "新密码需为 8–20 位字母与数字组合");
+        if (nextValue !== confirmValue) return void (error.textContent = "两次输入的新密码不一致");
+        data = loadData();
+        const dealer = data.dealers.find((d) => d.code === currentDealer.code);
+        dealer.password = nextValue;
+        saveData(data);
+        currentDealer = dealer;
+        closeModal();
+        showToast("密码已修改，并同步至管理后台", "success");
+      });
+    });
+
+    function showVoucherResult(vin) {
+      data = loadData();
+      const records = data.vouchers.filter((item) => item.dealerCode === currentDealer.code && item.vin === vin);
+      const body = records.length ? `<div class="voucher-list">${records.map((record, index) => `
+        <article class="voucher-record">
+          <div class="voucher-record__head"><span>取送车券 ${index + 1}</span><span class="status status--${record.status}">${record.status === "unused" ? "未核销" : "已核销"}</span></div>
+          <strong>${escapeHtml(record.id)}</strong>
+          <dl><div><dt>发券时间</dt><dd>${escapeHtml(record.issuedAt)}</dd></div><div><dt>有效期至</dt><dd>${escapeHtml(record.validUntil)}</dd></div>${record.redeemedAt ? `<div><dt>核销时间</dt><dd>${escapeHtml(record.redeemedAt)}</dd></div>` : ""}</dl>
+        </article>`).join("")}</div>` : `<div class="empty-state"><div class="empty-state__icon"><svg viewBox="0 0 48 48"><path d="M10 14h28v23H10zM15 9h18v5M17 22h14M17 28h10"></path></svg></div><strong>暂无发券记录</strong><p>该 VIN 码尚未发放过取送车券</p></div>`;
+      openModal(`${modalHeader("发放记录", "VIN 查询结果")}<div class="modal__body"><div class="vin-summary"><span>VIN 码</span><strong>${escapeHtml(vin)}</strong><small>${records.length ? `共找到 ${records.length} 张券` : "未查询到券"}</small></div>${body}<div class="modal__actions"><button class="button button--dark" type="button" data-close-modal>完成</button></div></div>`, "wide");
+    }
+
+    document.getElementById("searchForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const vin = normalizeVin(document.getElementById("searchVin").value);
+      if (!isValidVin(vin)) return showToast("请输入正确的 17 位 VIN 码", "error");
+      document.getElementById("searchVin").value = vin;
+      showVoucherResult(vin);
+    });
+
+    function openIssueModal() {
+      openModal(`${modalHeader("发放权益", "发放取送车券")}
+        <form id="issueForm" class="modal__body">
+          <div class="issue-notice"><strong>本次将发放 2 张券</strong><span>同一 VIN 每期限发 2 张，发放后不可撤回。</span></div>
+          <label class="field"><span>车辆 VIN 码</span><input id="issueVin" maxlength="17" autocomplete="off" required placeholder="请输入 17 位 VIN 码" /></label>
+          <p class="input-hint">VIN 码不含字母 I、O、Q</p>
+          <p id="issueError" class="form-error"></p>
+          <div class="modal__actions"><button type="button" class="button button--ghost" data-close-modal>取消</button><button class="button button--dark" type="submit">确认发放 2 张</button></div>
+        </form>`);
+      document.getElementById("issueForm").addEventListener("submit", handleIssue);
+      setTimeout(() => {
+        const input = document.getElementById("issueVin");
+        if (input) input.focus();
+      }, 30);
+    }
+
+    function resultModal(success, title, message, vin) {
+      const icon = success ? "✓" : "!";
+      openModal(`<div class="result-modal"><div class="result-icon ${success ? "result-icon--success" : "result-icon--error"}">${icon}</div><h2>${escapeHtml(title)}</h2><p>${escapeHtml(message)}</p>${vin ? `<span class="result-vin">VIN　${escapeHtml(vin)}</span>` : ""}<div class="modal__actions"><button class="button ${success ? "button--dark" : "button--ghost"}" type="button" data-close-modal>我知道了</button>${success ? `<button class="button button--outline" type="button" id="viewIssued">查看记录</button>` : ""}</div></div>`);
+      const view = document.getElementById("viewIssued");
+      if (view) view.addEventListener("click", () => showVoucherResult(vin));
+    }
+
+    function handleIssue(event) {
+      event.preventDefault();
+      const vin = normalizeVin(document.getElementById("issueVin").value);
+      if (!isValidVin(vin)) return void (document.getElementById("issueError").textContent = "请输入正确的 17 位 VIN 码");
+      data = loadData();
+      currentDealer = data.dealers.find((d) => d.code === currentDealer.code);
+      const existing = data.vouchers.filter((v) => v.dealerCode === currentDealer.code && v.vin === vin).length;
+      const remaining = currentDealer.quota - currentDealer.issued;
+      const scenario = document.getElementById("demoScenario").value;
+      if (scenario === "duplicate" || (scenario === "auto" && existing >= 2)) return resultModal(false, "发放失败", "该 VIN 本期已发放过 2 张取送车券，不可重复发放。", vin);
+      if (scenario === "quota" || (scenario === "auto" && remaining < 2)) return resultModal(false, "发放失败", "当前经销商可发券次数不足，请联系活动管理员调整配额。", vin);
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      const issuedAt = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      const expiry = new Date(now); expiry.setMonth(expiry.getMonth() + 6);
+      const validUntil = `${expiry.getFullYear()}-${pad(expiry.getMonth() + 1)}-${pad(expiry.getDate())}`;
+      const seed = String(Date.now()).slice(-8);
+      data.vouchers.push(
+        { id: `VC${seed}01`, dealerCode: currentDealer.code, vin, status: "unused", issuedAt, validUntil },
+        { id: `VC${seed}02`, dealerCode: currentDealer.code, vin, status: "unused", issuedAt, validUntil }
+      );
+      currentDealer.issued += 2;
+      saveData(data);
+      updateDashboard();
+      resultModal(true, "发放成功", "2 张取送车券已发放至该车辆账户。", vin);
+    }
+
+    document.getElementById("issueBtn").addEventListener("click", openIssueModal);
+    document.getElementById("resetDemo").addEventListener("click", () => {
+      data = resetData();
+      currentDealer = data.dealers.find((d) => d.code === currentDealer.code) || data.dealers[0];
+      document.getElementById("demoScenario").value = "auto";
+      updateDashboard();
+      showToast("演示数据已重置", "success");
+    });
+    window.addEventListener("storage", updateDashboard);
+  }
+
+  function initAdmin() {
+    let data = loadData();
+    let visibleDealers = data.dealers.slice();
+
+    function renderMetrics() {
+      data = loadData();
+      const totalQuota = data.dealers.reduce((sum, item) => sum + item.quota, 0);
+      const issued = data.dealers.reduce((sum, item) => sum + item.issued, 0);
+      document.getElementById("metricDealers").textContent = data.dealers.length;
+      document.getElementById("metricQuota").textContent = formatNumber(totalQuota);
+      document.getElementById("metricIssued").textContent = formatNumber(issued);
+      document.getElementById("metricRemaining").textContent = formatNumber(totalQuota - issued);
+      document.getElementById("metricRate").textContent = `整体发放率 ${totalQuota ? Math.round(issued / totalQuota * 100) : 0}%`;
+    }
+
+    function renderTable() {
+      const body = document.getElementById("dealerTableBody");
+      body.innerHTML = visibleDealers.map((dealer, index) => `
+        <tr>
+          <td><span class="table-index">${String(index + 1).padStart(2, "0")}</span></td>
+          <td><div class="dealer-cell"><span>${escapeHtml(dealer.name.charAt(0))}</span><div><strong>${escapeHtml(dealer.name)}</strong><small>密码····${escapeHtml(dealer.password.slice(-2))}</small></div></div></td>
+          <td>${escapeHtml(dealer.region)}</td><td>${escapeHtml(dealer.area)}</td>
+          <td><code>${escapeHtml(dealer.code)}</code></td><td><code class="muted-code">${escapeHtml(dealer.sa)}</code></td>
+          <td><strong>${dealer.quota}</strong> 张 <button class="mini-edit" data-edit="${dealer.id}" title="调整配额">编辑</button></td>
+          <td><div class="issued-cell"><strong>${dealer.issued}</strong> 张<span><i style="width:${Math.min(100, dealer.quota ? dealer.issued / dealer.quota * 100 : 0)}%"></i></span></div></td>
+          <td><button class="copy-action" data-copy="${dealer.id}"><svg viewBox="0 0 24 24"><path d="M8 8h11v11H8zM5 15V5h10"></path></svg>复制账号密码</button></td>
+        </tr>`).join("");
+      const empty = visibleDealers.length === 0;
+      document.getElementById("tableEmpty").classList.toggle("is-hidden", !empty);
+      document.getElementById("resultCount").textContent = visibleDealers.length;
+      document.getElementById("pageCount").textContent = visibleDealers.length;
+      document.getElementById("totalCount").textContent = visibleDealers.length;
+      body.querySelectorAll("[data-copy]").forEach((button) => button.addEventListener("click", () => copyCredentials(Number(button.dataset.copy))));
+      body.querySelectorAll("[data-edit]").forEach((button) => button.addEventListener("click", () => editQuota(Number(button.dataset.edit))));
+    }
+
+    function applyFilters() {
+      data = loadData();
+      const name = document.getElementById("dealerFilter").value.trim().toLowerCase();
+      const code = document.getElementById("codeFilter").value.trim().toLowerCase();
+      const sa = document.getElementById("saFilter").value.trim().toLowerCase();
+      visibleDealers = data.dealers.filter((d) => d.name.toLowerCase().includes(name) && d.code.toLowerCase().includes(code) && d.sa.toLowerCase().includes(sa));
+      renderTable();
+    }
+
+    async function copyCredentials(id) {
+      data = loadData();
+      const dealer = data.dealers.find((d) => d.id === id);
+      const text = `经销商：${dealer.name}\n登录账号：${dealer.code}\n登录密码：${dealer.password}`;
+      try { await navigator.clipboard.writeText(text); showToast("账号密码已复制", "success"); }
+      catch (error) {
+        openModal(`${modalHeader("账号信息", "复制经销商账号密码")}<div class="modal__body"><pre class="credential-block">${escapeHtml(text)}</pre><div class="modal__actions"><button class="button button--dark" data-close-modal>完成</button></div></div>`);
+      }
+    }
+
+    function editQuota(id) {
+      data = loadData();
+      const dealer = data.dealers.find((d) => d.id === id);
+      openModal(`${modalHeader("活动配额", "调整可发券数量")}
+        <form id="quotaForm" class="modal__body">
+          <div class="selected-dealer"><span>${escapeHtml(dealer.name.charAt(0))}</span><div><strong>${escapeHtml(dealer.name)}</strong><small>${escapeHtml(dealer.code)} · 已发 ${dealer.issued} 张</small></div></div>
+          <label class="field"><span>可发券总数</span><input id="quotaInput" type="number" min="${dealer.issued}" step="2" value="${dealer.quota}" required /></label>
+          <p class="input-hint">数量应为偶数，且不得小于已发券数 ${dealer.issued}。</p><p id="quotaError" class="form-error"></p>
+          <div class="modal__actions"><button type="button" class="button button--ghost" data-close-modal>取消</button><button type="submit" class="button button--dark">保存配额</button></div>
+        </form>`);
+      document.getElementById("quotaForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const value = Number(document.getElementById("quotaInput").value);
+        if (!Number.isInteger(value) || value < dealer.issued || value % 2 !== 0) return void (document.getElementById("quotaError").textContent = `请输入不小于 ${dealer.issued} 的偶数`);
+        dealer.quota = value;
+        saveData(data);
+        closeModal();
+        renderMetrics();
+        applyFilters();
+        showToast("发券配额已更新", "success");
+      });
+    }
+
+    document.getElementById("filterBtn").addEventListener("click", applyFilters);
+    ["dealerFilter", "codeFilter", "saFilter"].forEach((id) => document.getElementById(id).addEventListener("keydown", (event) => { if (event.key === "Enter") applyFilters(); }));
+    document.getElementById("clearFilter").addEventListener("click", () => {
+      ["dealerFilter", "codeFilter", "saFilter"].forEach((id) => { document.getElementById(id).value = ""; });
+      applyFilters();
+    });
+    document.getElementById("exportBtn").addEventListener("click", () => showToast("经销商名单已导出（演示）", "success"));
+    document.getElementById("mobileMenu").addEventListener("click", () => document.querySelector(".sidebar").classList.toggle("is-open"));
+    window.addEventListener("storage", () => { renderMetrics(); applyFilters(); });
+    renderMetrics();
+    renderTable();
+  }
+
+  const page = document.body.dataset.page;
+  if (page === "dealer") initDealer();
+  if (page === "admin") initAdmin();
+})();
